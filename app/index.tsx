@@ -1,4 +1,5 @@
 import { Typewriter } from "@/components/Typewriter"; // ajusta ruta
+import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import React, { useEffect } from "react";
@@ -16,6 +17,10 @@ export default function Index() {
 
     return () => clearTimeout(timeout);
   }, []);
+
+  const [loaded] = useFonts({
+    Roboto_Black: require("@/assets/fonts/Roboto-Black.ttf"),
+  });
 
   return (
     <View style={styles.container}>

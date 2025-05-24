@@ -16,6 +16,7 @@ export default function Dashboard() {
           <Button title={"Add user info"} onPress={() => router.push("/additional_info")}></Button>
           <Button title={"Hangedman"} onPress={() => router.push("/hangedman")}></Button>
           <Button title={"Scanner"} onPress={() => router.push("/scanner")}></Button>
+          <Button title={"Game selection"} onPress={() => router.push("/game_selection")}></Button>
         </View>
         <View>
           <TouchableOpacity
