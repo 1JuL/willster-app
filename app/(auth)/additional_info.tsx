@@ -13,6 +13,8 @@ import {
   View,
 } from "react-native";
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
 export default function AdditionalInfo() {
   const { user } = useAuth();
   const router = useRouter();
@@ -27,10 +29,10 @@ export default function AdditionalInfo() {
 
   // Predefined photo URLs
   const photoOptions = [
-    "https://example.com/photo1.png",
-    "https://example.com/photo2.png",
-    "https://example.com/photo3.png",
-    "https://example.com/photo4.png",
+    "https://shorturl.at/XBLfC",
+    "https://shorturl.at/MDmI5",
+    "https://shorturl.at/324r0",
+    "https://shorturl.at/ZvXVc",
   ];
 
   useEffect(() => {
@@ -40,30 +42,44 @@ export default function AdditionalInfo() {
     }
   }, [user]);
 
-  const changeScreen = () => {
-    router.replace("/welcome");
-  };
-
   const handleSubmit = async () => {
     if (!user) return;
-    const body = {
+
+    // Convertir temasInteres en array
+    const temasArr = temasInteres
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t.length);
+
+    const body: any = {
       uid: user.uid,
       username,
       photoUrl,
-      ...(carrera.trim() && { carrera }),
-      ...(horario && { preferenciasEstudio: { horario } }),
     };
+    if (carrera.trim()) body.carrera = carrera.trim();
+
+    // construir preferenciasEstudio si hay datos
+    const prefs: any = {};
+    if (horario) prefs.horario = horario;
+    if (metodo.trim()) prefs.metodo = metodo.trim();
+    if (temasArr.length) prefs.temasInteres = temasArr;
+    if (Object.keys(prefs).length) body.preferenciasEstudio = prefs;
 
     try {
       setLoading(true);
-      const response = await fetch("https://tu-api.com/users", {
+      console.log("POST a:", `${API_URL}/users`);
+      const res = await fetch(`${API_URL}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!response.ok) throw new Error("Error al guardar información");
-      Alert.alert("Éxito", "Información guardada correctamente.");
-      router.replace("/dashboard");
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Error al guardar información");
+      }
+      Alert.alert("Éxito", "Información guardada correctamente.", [
+        { text: "OK", onPress: () => router.replace("/dashboard") },
+      ]);
     } catch (error: any) {
       Alert.alert("Error", error.message);
     } finally {
@@ -136,7 +152,7 @@ export default function AdditionalInfo() {
 
       <TouchableOpacity
         style={[styles.button, loading && { opacity: 0.6 }]}
-        onPress={changeScreen}
+        onPress={handleSubmit}
         disabled={loading}
       >
         <Text style={styles.buttonText}>{loading ? "Guardando..." : "Guardar"}</Text>
@@ -167,7 +183,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   input: {
-    width: 290,
+    width: 350,
     height: 50,
     backgroundColor: "#FFF",
     borderRadius: 12,
@@ -178,21 +194,22 @@ const styles = StyleSheet.create({
   photoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 290,
-    marginBottom: 15,
+    width: 350,
+    marginBottom: 30,
   },
   photoOption: {
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
     borderRadius: 8,
     borderWidth: 2,
     borderColor: "transparent",
+    resizeMode: "contain",
   },
   photoSelected: {
     borderColor: "#F4AB9C",
   },
   pickerWrapper: {
-    width: 290,
+    width: 350,
     backgroundColor: "#FFF",
     borderRadius: 12,
     marginBottom: 20,
@@ -203,7 +220,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
-    width: 290,
+    width: 350,
     height: 50,
     backgroundColor: "#F4AB9C",
     borderRadius: 12,
