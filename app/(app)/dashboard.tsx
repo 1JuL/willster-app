@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -104,113 +105,117 @@ export default function HomeScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color="#EF5C40" />
-        <Text style={styles.loadingText}>Loading your notebooks...</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <View style={[styles.container, styles.loadingContainer]}>
+          <ActivityIndicator size="large" color="#EF5C40" />
+          <Text style={styles.loadingText}>Loading your notebooks...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <MaterialCommunityIcons name="account-circle" size={24} color="black" />
-        <Text style={styles.headerText}>Home</Text>
-      </View>
-
-      {/* Content */}
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        {notebooks.length === 0 ? (
-          <View style={styles.emptyState}>
-            <MaterialCommunityIcons name="book-outline" size={64} color="#ccc" />
-            <Text style={styles.emptyStateTitle}>No notebooks yet</Text>
-            <Text style={styles.emptyStateText}>Create your first notebook to get started!</Text>
-            <TouchableOpacity onPress={handleAddNotebook} style={styles.createFirstButton}>
-              <Text style={styles.createFirstButtonText}>Create Notebook</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          notebooks.map((notebook) => (
-            <View key={notebook.id} style={styles.subjectBlock}>
-              <TouchableOpacity
-                onPress={() => toggleExpand(notebook.id)}
-                style={styles.subjectButton}
-              >
-                <MaterialCommunityIcons name="book-open-variant" size={18} color="black" />
-                <Text style={styles.subjectText}>{notebook.title}</Text>
-                <MaterialCommunityIcons
-                  name={expanded === notebook.id ? "chevron-up" : "chevron-down"}
-                  size={20}
-                  color="black"
-                />
-              </TouchableOpacity>
-              {expanded === notebook.id && (
-                <View style={styles.subMenu}>
-                  <TouchableOpacity
-                    style={styles.subItem}
-                    onPress={() => handleNotebookPress(notebook)}
-                  >
-                    <MaterialCommunityIcons name="note-text-outline" size={18} />
-                    <Text style={styles.subText}>{notebook.title} Notes</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.subItem}
-                    onPress={() => handleGamesPress(notebook)}
-                  >
-                    <MaterialCommunityIcons name="controller-classic-outline" size={18} />
-                    <Text style={styles.subText}>{notebook.title} games</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          ))
-        )}
-      </ScrollView>
-
-      {/* Modal for Adding Notebook */}
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={handleCloseModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New Notebook</Text>
-              <TouchableOpacity onPress={handleCloseModal}>
-                <MaterialCommunityIcons name="close" size={24} color="black" />
-              </TouchableOpacity>
-            </View>
-            <AddNotebook onSuccess={handleNotebookCreated} />
-          </View>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <MaterialCommunityIcons name="account-circle" size={24} color="black" />
+          <Text style={styles.headerText}>Home</Text>
         </View>
-      </Modal>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity onPress={handleAddNotebook} style={styles.navItem}>
-          <MaterialCommunityIcons name="plus-box" size={24} color="black" />
-          <Text style={styles.navText}>Add notebook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-          <MaterialCommunityIcons name="home" size={24} color="black" />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
-          <MaterialCommunityIcons name="qrcode-scan" size={24} color="black" />
-          <Text style={styles.navText}>Scan notes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
-          <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="black" />
-          <Text style={styles.navText}>Your games</Text>
-        </TouchableOpacity>
+        {/* Content */}
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          {notebooks.length === 0 ? (
+            <View style={styles.emptyState}>
+              <MaterialCommunityIcons name="book-outline" size={64} color="#ccc" />
+              <Text style={styles.emptyStateTitle}>No notebooks yet</Text>
+              <Text style={styles.emptyStateText}>Create your first notebook to get started!</Text>
+              <TouchableOpacity onPress={handleAddNotebook} style={styles.createFirstButton}>
+                <Text style={styles.createFirstButtonText}>Create Notebook</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            notebooks.map((notebook) => (
+              <View key={notebook.id} style={styles.subjectBlock}>
+                <TouchableOpacity
+                  onPress={() => toggleExpand(notebook.id)}
+                  style={styles.subjectButton}
+                >
+                  <MaterialCommunityIcons name="book-open-variant" size={18} color="black" />
+                  <Text style={styles.subjectText}>{notebook.title}</Text>
+                  <MaterialCommunityIcons
+                    name={expanded === notebook.id ? "chevron-up" : "chevron-down"}
+                    size={20}
+                    color="black"
+                  />
+                </TouchableOpacity>
+                {expanded === notebook.id && (
+                  <View style={styles.subMenu}>
+                    <TouchableOpacity
+                      style={styles.subItem}
+                      onPress={() => handleNotebookPress(notebook)}
+                    >
+                      <MaterialCommunityIcons name="note-text-outline" size={18} />
+                      <Text style={styles.subText}>{notebook.title} Notes</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.subItem}
+                      onPress={() => handleGamesPress(notebook)}
+                    >
+                      <MaterialCommunityIcons name="controller-classic-outline" size={18} />
+                      <Text style={styles.subText}>{notebook.title} games</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))
+          )}
+        </ScrollView>
+
+        {/* Modal for Adding Notebook */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={handleCloseModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Add New Notebook</Text>
+                <TouchableOpacity onPress={handleCloseModal}>
+                  <MaterialCommunityIcons name="close" size={24} color="black" />
+                </TouchableOpacity>
+              </View>
+              <AddNotebook onSuccess={handleNotebookCreated} />
+            </View>
+          </View>
+        </Modal>
+
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity onPress={handleAddNotebook} style={styles.navItem}>
+            <MaterialCommunityIcons name="plus-box" size={24} color="black" />
+            <Text style={styles.navText}>Add notebook</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
+            <MaterialCommunityIcons name="home" size={24} color="black" />
+            <Text style={styles.navText}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
+            <MaterialCommunityIcons name="qrcode-scan" size={24} color="black" />
+            <Text style={styles.navText}>Scan notes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
+            <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="black" />
+            <Text style={styles.navText}>Your games</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -3,60 +3,58 @@ import CameraOCR from "@/components/CameraOCR";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ScannerScreen() {
   const router = useRouter();
 
   const handleTextExtracted = (text: string) => {
-    console.log('Text extracted:', text);
+    console.log("Text extracted:", text);
   };
 
   const handleImageSelected = (imageUrl: string) => {
-    console.log('Image URL received:', imageUrl);
+    console.log("Image URL received:", imageUrl);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Scan your notes</Text>
-      </View>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Scan your notes</Text>
+        </View>
 
-      <View style={styles.content}>
-        <CameraOCR
-          onTextExtracted={handleTextExtracted}
-          onImageSelected={handleImageSelected}
-          characterImageSource={require('@/assets/images/will scanner.png')}
-        />
-      </View>
+        <View style={styles.content}>
+          <CameraOCR
+            onTextExtracted={handleTextExtracted}
+            onImageSelected={handleImageSelected}
+            characterImageSource={require("@/assets/images/will scanner.png")}
+          />
+        </View>
 
-      <View style={styles.bottomNav}>
-        <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
-          <MaterialCommunityIcons name="plus-box" size={24} color="black" />
-          <Text style={styles.navText}>Add notebook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
-          <MaterialCommunityIcons name="home" size={24} color="black" />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
-          <MaterialCommunityIcons name="qrcode-scan" size={24} color="#EF5C40" />
-          <Text style={[styles.navText, styles.activeNavText]}>Scan notes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
-          <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="black" />
-          <Text style={styles.navText}>Your games</Text>
-        </TouchableOpacity>
+        <View style={styles.bottomNav}>
+          <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
+            <MaterialCommunityIcons name="plus-box" size={24} color="black" />
+            <Text style={styles.navText}>Add notebook</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
+            <MaterialCommunityIcons name="home" size={24} color="black" />
+            <Text style={styles.navText}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
+            <MaterialCommunityIcons name="qrcode-scan" size={24} color="#EF5C40" />
+            <Text style={[styles.navText, styles.activeNavText]}>Scan notes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
+            <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="black" />
+            <Text style={styles.navText}>Your games</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
