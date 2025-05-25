@@ -108,7 +108,13 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <MaterialIcons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Profile</Text>
+      </View>
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>Hello! {userName}</Text>
         <Text style={styles.label}>Avatar</Text>
@@ -167,18 +173,20 @@ export default function ProfileScreen() {
           onChangeText={setTemas}
         />
 
-        <TouchableOpacity
-          style={[styles.button, saving && { opacity: 0.6 }]}
-          onPress={handleSave}
-          disabled={saving}
-        >
-          <Text style={styles.buttonText}>{saving ? "Guardando..." : "Guardar cambios"}</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.buttonCont, saving && { opacity: 0.6 }]}
+            onPress={handleSave}
+            disabled={saving}
+          >
+            <Text style={styles.buttonText}>{saving ? "Guardando..." : "Guardar cambios"}</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.reminders} onPress={() => router.push("/studysession")}>
-          <MaterialIcons name="notifications" size={20} color="#000" />
-          <Text style={styles.remindersText}>Reminders</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.reminders} onPress={() => router.push("/studysession")}>
+            <MaterialIcons name="notifications" size={20} color="#000" />
+            <Text style={styles.remindersText}>Reminders</Text>
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity style={styles.logout} onPress={logout}>
           <Text style={styles.logoutText}>Logout</Text>
@@ -190,6 +198,13 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FEF3D9" },
+  header: {
+    flexDirection: "row",
+    padding: 12,
+    backgroundColor: "#F4AB9C",
+    alignItems: "center",
+  },
+  headerTitle: { fontSize: 18, fontWeight: "700", marginLeft: 155 },
   title: {
     fontSize: 24,
     fontWeight: "700",
@@ -248,13 +263,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  buttonCont: {
+    marginTop: 20,
+    width: "45%",
+    height: 50,
+    backgroundColor: "#F4AB9C",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   buttonText: { fontSize: 16, fontWeight: "600", color: "#000" },
   reminders: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 20,
     borderWidth: 1,
-    width: "100%",
+    width: "45%",
     height: 50,
     borderRadius: 12,
     justifyContent: "center",
@@ -280,4 +304,9 @@ const styles = StyleSheet.create({
     color: "#C00",
   },
   loader: { flex: 1, alignItems: "center", justifyContent: "center" },
+  buttonContainer: {
+    flexDirection: "row",
+    marginTop: 20,
+    gap: 20,
+  },
 });
