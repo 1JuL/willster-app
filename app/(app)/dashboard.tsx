@@ -119,7 +119,9 @@ export default function HomeScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <MaterialCommunityIcons name="account-circle" size={24} color="black" />
+          <TouchableOpacity onPress={() => router.push("/profile")}>
+            <MaterialCommunityIcons name="account-circle" size={34} color="black" />
+          </TouchableOpacity>
           <Text style={styles.headerText}>Home</Text>
         </View>
 
