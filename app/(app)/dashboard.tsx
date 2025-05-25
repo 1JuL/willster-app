@@ -1,6 +1,8 @@
 // app/home.tsx
 import AddNotebook from "@/components/addNotebook";
 import { useAuth } from "@/context/AuthContext";
+import { useNotebook } from "@/context/NotebookContext"; // Importar el contexto
+import { Notebook } from "@/interfaces/AppInterfaces";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -19,16 +21,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-interface Notebook {
-  id: string;
-  title: string;
-  createdAt?: string;
-  // Agrega más propiedades según tu API
-}
-
 export default function HomeScreen() {
   const router = useRouter();
   const { logout, user } = useAuth();
+  const { setNotebook } = useNotebook(); // Usar el contexto
   const [expanded, setExpanded] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
@@ -94,12 +90,14 @@ export default function HomeScreen() {
   };
 
   const handleNotebookPress = (notebook: Notebook) => {
-    // Navegar a la pantalla de notas del notebook
+    // AQUÍ ESTÁ EL CAMBIO IMPORTANTE: Configurar el contexto antes de navegar
+    setNotebook(notebook.id, ""); // Pasar el ID del notebook seleccionado
     router.push("/notesdashboard");
   };
 
   const handleGamesPress = (notebook: Notebook) => {
-    // Navegar a los juegos del notebook
+    // También configurar el contexto para los juegos
+    setNotebook(notebook.id, "");
     router.push(`/game_scores`);
   };
 
@@ -120,7 +118,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.push("/profile")}>
-            <MaterialCommunityIcons name="account-circle" size={34} color="black" />
+            <MaterialCommunityIcons name="account-circle" size={34} color="#2A1E1E" />
           </TouchableOpacity>
           <Text style={styles.headerText}>Home</Text>
         </View>
@@ -146,12 +144,12 @@ export default function HomeScreen() {
                   onPress={() => toggleExpand(notebook.id)}
                   style={styles.subjectButton}
                 >
-                  <MaterialCommunityIcons name="book-open-variant" size={18} color="black" />
+                  <MaterialCommunityIcons name="book-open-page-variant-outline" size={18} color="#2A1E1E" />
                   <Text style={styles.subjectText}>{notebook.title}</Text>
                   <MaterialCommunityIcons
                     name={expanded === notebook.id ? "chevron-up" : "chevron-down"}
                     size={20}
-                    color="black"
+                    color="#2A1E1E"
                   />
                 </TouchableOpacity>
                 {expanded === notebook.id && (
@@ -160,14 +158,14 @@ export default function HomeScreen() {
                       style={styles.subItem}
                       onPress={() => handleNotebookPress(notebook)}
                     >
-                      <MaterialCommunityIcons name="note-text-outline" size={18} />
+                      <MaterialCommunityIcons name="format-list-bulleted" size={18} />
                       <Text style={styles.subText}>{notebook.title} Notes</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.subItem}
                       onPress={() => handleGamesPress(notebook)}
                     >
-                      <MaterialCommunityIcons name="controller-classic-outline" size={18} />
+                      <MaterialCommunityIcons name="puzzle" size={18} />
                       <Text style={styles.subText}>{notebook.title} games</Text>
                     </TouchableOpacity>
                   </View>
@@ -189,7 +187,7 @@ export default function HomeScreen() {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Add New Notebook</Text>
                 <TouchableOpacity onPress={handleCloseModal}>
-                  <MaterialCommunityIcons name="close" size={24} color="black" />
+                  <MaterialCommunityIcons name="close" size={24} color="#2A1E1E" />
                 </TouchableOpacity>
               </View>
               <AddNotebook onSuccess={handleNotebookCreated} />
@@ -200,19 +198,19 @@ export default function HomeScreen() {
         {/* Bottom Navigation */}
         <View style={styles.bottomNav}>
           <TouchableOpacity onPress={handleAddNotebook} style={styles.navItem}>
-            <MaterialCommunityIcons name="plus-box" size={24} color="black" />
+            <MaterialCommunityIcons name="plus-box" size={24} color="#2A1E1E" />
             <Text style={styles.navText}>Add notebook</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-            <MaterialCommunityIcons name="home" size={24} color="black" />
+            <MaterialCommunityIcons name="home" size={24} color="#2A1E1E" />
             <Text style={styles.navText}>Home</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
-            <MaterialCommunityIcons name="qrcode-scan" size={24} color="black" />
+            <MaterialCommunityIcons name="qrcode-scan" size={24} color="#2A1E1E" />
             <Text style={styles.navText}>Scan notes</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
-            <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="black" />
+            <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="#2A1E1E" />
             <Text style={styles.navText}>Your games</Text>
           </TouchableOpacity>
         </View>
@@ -242,6 +240,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 15,
     gap: 10,
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10,
+    marginBottom: 15,
   },
   headerText: {
     fontSize: 20,
@@ -291,11 +292,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "#EF5C40",
-    padding: 15,
+    padding: 20,
     borderRadius: 10,
   },
   subjectText: {
-    color: "black",
+    color: "#2A1E1E",
     fontWeight: "bold",
     fontSize: 16,
     flex: 1,
@@ -318,6 +319,7 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: 15,
+    fontWeight: "bold",
   },
   bottomNav: {
     position: "absolute",
@@ -331,7 +333,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 25,
     elevation: 5,
-    shadowColor: "#000",
+    shadowColor: "#2A1E1E",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -348,7 +350,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 2,
     textAlign: "center",
-    color: "black",
+    color: "#2A1E1E",
   },
   modalOverlay: {
     flex: 1,
@@ -373,6 +375,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "black",
+    color: "#2A1E1E",
   },
 });

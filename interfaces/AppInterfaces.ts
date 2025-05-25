@@ -11,4 +11,29 @@ export interface AuthProviderProps {
   children: ReactNode;
 }
 
+export interface Notebook {
+  id: string;
+  title: string;
+  createdAt?: string;
 
+}
+
+export interface CameraOCRProps {
+  onTextExtracted?: (text: string) => void;
+  onImageSelected?: (imageUrl: string) => void;
+  characterImageSource?: any;
+}
+
+export interface Props {
+  visible: boolean;
+  notebooks: Notebook[];
+  isSaving: boolean;
+  onSelect: (id: string, title: string) => void;
+  onClose: () => void;
+}
+
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+}

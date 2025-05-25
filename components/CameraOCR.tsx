@@ -1,4 +1,5 @@
 import { uploadImageToFirebase } from '@/config/uploadImagesToFirebase';
+import { CameraOCRProps } from '@/interfaces/AppInterfaces';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
@@ -6,21 +7,14 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Modal,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 
-interface CameraOCRProps {
-  onTextExtracted?: (text: string) => void;
-  onImageSelected?: (imageUrl: string) => void;
-  characterImageSource?: any;
-}
 
 export default function CameraOCR({
   onTextExtracted,
@@ -32,7 +26,7 @@ export default function CameraOCR({
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedText, setExtractedText] = useState<string>('');
-  const [showTextModal, setShowTextModal] = useState(false);
+
 
   const handleImageSelection = async (uri: string) => {
     setSelectedImage(uri);
@@ -80,8 +74,7 @@ export default function CameraOCR({
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
+      quality: 0.7,
     });
 
     if (!result.canceled) {
@@ -111,7 +104,6 @@ export default function CameraOCR({
         Alert.alert('Sin texto', 'No se detectó texto en la imagen.');
       } else {
         setExtractedText(text);
-        setShowTextModal(true);
         onTextExtracted?.(text);
       }
     } catch (e: any) {
@@ -126,7 +118,7 @@ export default function CameraOCR({
     setSelectedImage(null);
     setSelectedImageUrl(null);
     setExtractedText('');
-    setShowTextModal(false);
+
   };
 
   return (
@@ -192,25 +184,6 @@ export default function CameraOCR({
           )}
         </TouchableOpacity>
       </View>
-
-      <Modal visible={showTextModal} transparent animationType="slide">
-        <View style={styles.overlay}>
-          <View style={styles.modal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Texto Extraído</Text>
-              <TouchableOpacity onPress={() => setShowTextModal(false)}>
-                <MaterialCommunityIcons name="close" size={24} color="black" />
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.textContainer}>
-              <Text style={styles.extracted}>{extractedText}</Text>
-            </ScrollView>
-            <TouchableOpacity onPress={reset} style={styles.okBtn}>
-              <Text style={styles.okText}>OK</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
