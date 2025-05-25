@@ -4,7 +4,17 @@ import { useAuth } from "@/context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Modal, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -64,7 +74,7 @@ export default function HomeScreen() {
   }, []);
 
   const toggleExpand = (notebookId: string) => {
-    setExpanded(prev => (prev === notebookId ? null : notebookId));
+    setExpanded((prev) => (prev === notebookId ? null : notebookId));
   };
 
   const handleAddNotebook = () => {
@@ -84,7 +94,7 @@ export default function HomeScreen() {
 
   const handleNotebookPress = (notebook: Notebook) => {
     // Navegar a la pantalla de notas del notebook
-    router.push(`/notesdashboard`);
+    router.push("/notesdashboard");
   };
 
   const handleGamesPress = (notebook: Notebook) => {
@@ -110,28 +120,24 @@ export default function HomeScreen() {
       </View>
 
       {/* Content */}
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scroll}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {notebooks.length === 0 ? (
           <View style={styles.emptyState}>
             <MaterialCommunityIcons name="book-outline" size={64} color="#ccc" />
             <Text style={styles.emptyStateTitle}>No notebooks yet</Text>
-            <Text style={styles.emptyStateText}>
-              Create your first notebook to get started!
-            </Text>
+            <Text style={styles.emptyStateText}>Create your first notebook to get started!</Text>
             <TouchableOpacity onPress={handleAddNotebook} style={styles.createFirstButton}>
               <Text style={styles.createFirstButtonText}>Create Notebook</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          notebooks.map(notebook => (
+          notebooks.map((notebook) => (
             <View key={notebook.id} style={styles.subjectBlock}>
-              <TouchableOpacity 
-                onPress={() => toggleExpand(notebook.id)} 
+              <TouchableOpacity
+                onPress={() => toggleExpand(notebook.id)}
                 style={styles.subjectButton}
               >
                 <MaterialCommunityIcons name="book-open-variant" size={18} color="black" />
@@ -144,14 +150,14 @@ export default function HomeScreen() {
               </TouchableOpacity>
               {expanded === notebook.id && (
                 <View style={styles.subMenu}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.subItem}
                     onPress={() => handleNotebookPress(notebook)}
                   >
                     <MaterialCommunityIcons name="note-text-outline" size={18} />
                     <Text style={styles.subText}>{notebook.title} Notes</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.subItem}
                     onPress={() => handleGamesPress(notebook)}
                   >
@@ -191,7 +197,7 @@ export default function HomeScreen() {
           <MaterialCommunityIcons name="plus-box" size={24} color="black" />
           <Text style={styles.navText}>Add notebook</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
+        <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
           <MaterialCommunityIcons name="home" size={24} color="black" />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
@@ -209,9 +215,9 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#FFF5DC" 
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF5DC",
   },
   loadingContainer: {
     justifyContent: "center",
@@ -230,12 +236,12 @@ const styles = StyleSheet.create({
     padding: 15,
     gap: 10,
   },
-  headerText: { 
-    fontSize: 20, 
-    fontWeight: "bold" 
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
-  scroll: { 
-    padding: 10, 
+  scroll: {
+    padding: 10,
     paddingBottom: 120,
     flexGrow: 1,
   },
@@ -270,8 +276,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-  subjectBlock: { 
-    marginBottom: 25 
+  subjectBlock: {
+    marginBottom: 25,
   },
   subjectButton: {
     flexDirection: "row",
@@ -281,9 +287,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
   },
-  subjectText: { 
-    color: "black", 
-    fontWeight: "bold", 
+  subjectText: {
+    color: "black",
+    fontWeight: "bold",
     fontSize: 16,
     flex: 1,
     marginLeft: 10,
