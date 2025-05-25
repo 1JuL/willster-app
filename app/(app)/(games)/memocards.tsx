@@ -7,20 +7,22 @@ import { getAuth } from "firebase/auth";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   FlatList,
+  Image,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const NUM_COLUMNS = 2;
 const CARD_SIZE = (SCREEN_WIDTH - 32 - (NUM_COLUMNS - 1) * 8) / NUM_COLUMNS;
-const GAME_TIME_SEC = 60;
+const GAME_TIME_SEC = 65;
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 type CardItem = {
@@ -28,6 +30,21 @@ type CardItem = {
   content: string;
   pairId: string;
 };
+
+const CARD_COLORS = [
+  "#B0E0E6", // Powder Blue (un azul muy suave y fresco)
+  "#ADD8E6", // Light Blue (un azul cielo pálido)
+  "#90EE90", // Light Green (un verde menta muy claro)
+  "#FFB6C1", // Light Pink (un rosa claro y delicado)
+  "#DDA0DD", // Plum (un violeta muy pálido, casi lila)
+  "#AFEEEE", // Pale Turquoise (un turquesa muy suave y algo verdoso)
+  "#F08080", // Light Coral (un rosa rojizo muy tenue)
+  "#87CEFA", // Light Sky Blue (un azul ligeramente más saturado que Powder Blue)
+  "#CCEEFF", // Periwinkle (un azul-violeta muy claro)
+  "#D8BFD8", // Thistle (un lila grisáceo muy suave)
+];
+
+const TIMER_INTERVAL = 1000;
 
 export default function MemoryGameScreen() {
   const router = useRouter();
@@ -39,57 +56,58 @@ export default function MemoryGameScreen() {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(GAME_TIME_SEC);
   const [gameOver, setGameOver] = useState(false);
+  const [score, setScore] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [won, setWon] = useState(false);
+
+  const flatListRef = useRef<FlatList>(null);
+  const [listHeight, setListHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [hasShownScrollReminder, setHasShownScrollReminder] = useState(false);
 
   const firstPick = useRef<string | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | number | null>(null);
+
+  const loadAndShuffleCards = async () => {
+    setLoading(true);
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) throw new Error("No auth");
+
+      const res = await fetch(
+        `${API_URL}/users/${user.uid}/notebooks/${nbId}/notes/${nId}/games/memory`
+      );
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const json = await res.json();
+      const raw = json.data?.cards;
+
+      let deck: CardItem[] = [];
+      raw.forEach((item: { concept: any; description: any }, idx: any) => {
+        const pid = `pair-${idx}`;
+        deck.push(
+          { id: `${pid}-a`, pairId: pid, content: item.concept },
+          { id: `${pid}-b`, pairId: pid, content: item.description }
+        );
+      });
+
+      deck = deck
+        .map((c) => ({ sort: Math.random(), card: c }))
+        .sort((a, b) => a.sort - b.sort)
+        .map((x) => x.card);
+
+      setCards(deck);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadCards() {
-      setLoading(true);
-      try {
-        const auth = getAuth();
-        const user = auth.currentUser;
-        if (!user) throw new Error("Usuario no autenticado");
-
-        const url = `${API_URL}/users/${user.uid}/notebooks/${nbId}/notes/${nId}/games/memory`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Error ${res.status}`);
-        const json = await res.json();
-        const raw: { concept: string; description: string }[] = json.data?.cards || [];
-
-        const fallback = [
-          { concept: "Apple", description: "A fruit" },
-          { concept: "Dog", description: "A pet" },
-          { concept: "Car", description: "A vehicle" },
-        ];
-        const items = raw.length ? raw : fallback;
-
-        let deck: CardItem[] = [];
-        items.forEach((item, idx) => {
-          const pid = `pair-${idx}`;
-          deck.push(
-            { id: `${pid}-a`, pairId: pid, content: item.concept },
-            { id: `${pid}-b`, pairId: pid, content: item.description }
-          );
-        });
-
-        // Shuffle deck
-        deck = deck
-          .map((c) => ({ sort: Math.random(), card: c }))
-          .sort((a, b) => a.sort - b.sort)
-          .map((x) => x.card);
-
-        setCards(deck);
-        setLoading(false);
-      } catch (e) {
-        console.error(e);
-        setLoading(false);
-      }
-    }
-    loadCards();
+    loadAndShuffleCards();
   }, [nbId, nId]);
 
-  // Timer
   useEffect(() => {
     if (loading) return;
     timerRef.current = setInterval(() => {
@@ -101,34 +119,63 @@ export default function MemoryGameScreen() {
         }
         return t - 1;
       });
-    }, 1000);
+    }, TIMER_INTERVAL);
     return () => {
       if (timerRef.current) {
-        clearInterval(timerRef.current);
+        clearInterval(timerRef.current as NodeJS.Timeout);
       }
     };
   }, [loading]);
 
-  const endGame = async () => {
-    setGameOver(true);
+  useEffect(() => {
+    // Solo si el juego está cargado y aún no hemos mostrado el recordatorio
+    if (
+      !loading &&
+      cards.length > 0 &&
+      !hasShownScrollReminder &&
+      contentHeight > listHeight &&
+      listHeight > 0
+    ) {
+      Toast.show({
+        type: "info",
+        text1: "¡Recuerda Hay más cartas!",
+        text2: "Desliza hacia abajo para verlas todas.",
+        position: "top",
+        visibilityTime: 3500,
+        autoHide: true,
+        topOffset: 450,
+        bottomOffset: 40,
+      });
+      setHasShownScrollReminder(true); // Marcar que ya se mostró
+    }
+  }, [loading, cards, listHeight, contentHeight, hasShownScrollReminder]);
+
+  const patchScore = async (finalScore: number) => {
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (!user) throw new Error("No auth");
-      const pairsFound = matched.size;
-      const score = pairsFound * 10 + timeLeft;
-      const patchUrl = `${API_URL}/users/${user.uid}/notebooks/${nbId}/notes/${nId}/games/memory/score`;
-      await fetch(patchUrl, {
+      const user = getAuth().currentUser;
+      if (!user) return;
+      const url = `${API_URL}/users/${user.uid}/notebooks/${nbId}/notes/${nId}/games/memory/score`;
+      await fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ score }),
+        body: JSON.stringify({ score: finalScore }),
       });
-      Alert.alert("Juego terminado", `Tu puntaje: ${score}`, [
-        { text: "OK", onPress: () => router.back() },
-      ]);
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const endGame = async () => {
+    setGameOver(true);
+    const pairs = matched.size;
+    let calculatedScore = 0;
+    if (pairs > 0) {
+      calculatedScore = pairs * 10 + timeLeft;
+    }
+    setScore(calculatedScore);
+    setWon(pairs === cards.length / 2);
+    await patchScore(calculatedScore);
+    setModalVisible(true);
   };
 
   const onCardPress = (card: CardItem) => {
@@ -154,23 +201,10 @@ export default function MemoryGameScreen() {
     }
     firstPick.current = null;
 
-    // If all matched, end game
     if (matched.size + 1 === cards.length / 2) {
       clearInterval(timerRef.current!);
       endGame();
     }
-  };
-
-  const renderItem = ({ item }: { item: CardItem }) => {
-    const isFlipped = flipped.has(item.id) || matched.has(item.pairId);
-    return (
-      <TouchableOpacity
-        onPress={() => onCardPress(item)}
-        style={[styles.card, matched.has(item.pairId) && styles.cardMatched]}
-      >
-        {isFlipped && <Text style={styles.cardText}>{item.content}</Text>}
-      </TouchableOpacity>
-    );
   };
 
   if (loading) {
@@ -182,7 +216,7 @@ export default function MemoryGameScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <View style={styles.screen}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
@@ -195,14 +229,88 @@ export default function MemoryGameScreen() {
         <FlatList
           data={cards}
           keyExtractor={(c) => c.id}
-          renderItem={renderItem}
+          renderItem={({ item, index }) => {
+            const isFlipped = flipped.has(item.id) || matched.has(item.pairId);
+            const bgColor = CARD_COLORS[index % CARD_COLORS.length];
+            return (
+              <TouchableOpacity
+                onPress={() => onCardPress(item)}
+                style={[
+                  styles.card,
+                  { backgroundColor: bgColor },
+                  matched.has(item.pairId) && styles.cardMatched,
+                ]}
+              >
+                {isFlipped ? (
+                  <Text style={styles.cardText}>{item.content}</Text>
+                ) : (
+                  <Image
+                    source={require("@/assets/images/will-think.png")}
+                    style={styles.cardBackImage}
+                  />
+                )}
+              </TouchableOpacity>
+            );
+          }}
           numColumns={NUM_COLUMNS}
           contentContainerStyle={styles.list}
+          onLayout={(event) => {
+            setListHeight(event.nativeEvent.layout.height);
+          }}
+          onContentSizeChange={(w, h) => {
+            setContentHeight(h);
+          }}
         />
       </View>
+
+      <Toast />
+
+      <Modal visible={modalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Image
+              source={
+                won
+                  ? require("@/assets/images/will-congrats.png")
+                  : require("@/assets/images/will-lose.png")
+              }
+              style={styles.modalImage}
+            />
+            <Text style={styles.modalText}>You got {score} points</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={async () => {
+                  await patchScore(score);
+                  setFlipped(new Set());
+                  setMatched(new Set());
+                  setTimeLeft(GAME_TIME_SEC);
+                  setGameOver(false);
+                  setModalVisible(false);
+                  setHasShownScrollReminder(false);
+                  await loadAndShuffleCards();
+                }}
+              >
+                <Text>Try again</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={async () => {
+                  await patchScore(score);
+                  router.back();
+                }}
+              >
+                <Text>Main menu</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
+
+// styles unchanged
 
 const styles = StyleSheet.create({
   container: {
@@ -233,6 +341,7 @@ const styles = StyleSheet.create({
   },
   cardMatched: {
     opacity: 0.5,
+    backgroundColor: "#b9ffa4",
   },
   cardText: {
     textAlign: "center",
@@ -241,4 +350,47 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   loader: { flex: 1, alignItems: "center", justifyContent: "center" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "#FFEAA4",
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  modalImage: {
+    width: 150,
+    height: 150,
+    marginBottom: 10,
+    resizeMode: "contain",
+  },
+  modalText: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 10,
+    backgroundColor: "#F4AB9C",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  cardBackImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+    borderRadius: 8,
+  },
 });
