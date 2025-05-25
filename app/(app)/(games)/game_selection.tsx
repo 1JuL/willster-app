@@ -13,7 +13,7 @@ export default function GameSelection() {
     key: string;
     title: string;
     image: any;
-    route: "/memocards" | "/hangedman" | "/quiz";
+    route: any;
     bg: string;
   }[] = [
     {
