@@ -101,7 +101,7 @@ export default function CameraOCR({
       const json = await resp.json();
       const text = json.text?.trim() || '';
       if (!text) {
-        Alert.alert('Sin texto', 'No se detectó texto en la imagen.');
+        Alert.alert('The image is to heavy', 'The image is to heavy to process.');
       } else {
         setExtractedText(text);
         onTextExtracted?.(text);
@@ -124,7 +124,7 @@ export default function CameraOCR({
   return (
     <View style={styles.container}>
       <Text style={styles.instructionText}>
-        Toca la imagen para abrir{'\n'}la cámara o galería
+        Touch the image to open{'\n'}the camera
       </Text>
 
       <TouchableOpacity onPress={openCamera} style={styles.characterContainer}>
@@ -153,14 +153,14 @@ export default function CameraOCR({
       {isUploading && (
         <View style={styles.uploadingContainer}>
           <ActivityIndicator size="small" color="#EF5C40" />
-          <Text style={styles.uploadingText}>Subiendo imagen...</Text>
+          <Text style={styles.uploadingText}>uploading image...</Text>
         </View>
       )}
 
       <View style={styles.buttons}>
         <TouchableOpacity onPress={openGallery} style={styles.galleryBtn}>
           <MaterialCommunityIcons name="image-multiple" size={20} color="white" />
-          <Text style={styles.btnText}>Galería</Text>
+          <Text style={styles.btnText}>Galery</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -174,12 +174,12 @@ export default function CameraOCR({
           {isProcessing ? (
             <>
               <ActivityIndicator size="small" color="white" />
-              <Text style={styles.btnText}>Procesando...</Text>
+              <Text style={styles.btnText}>Processing...</Text>
             </>
           ) : (
             <>
               <MaterialCommunityIcons name="text-recognition" size={20} color="white" />
-              <Text style={styles.btnText}>Extraer Texto</Text>
+              <Text style={styles.btnText}>Extract text</Text>
             </>
           )}
         </TouchableOpacity>

@@ -37,3 +37,9 @@ export interface Note {
   title: string;
   content: string;
 }
+export interface GameInfo {
+  type: "quiz" | "hangman" | "memory";
+  title: string;
+  icon: string;
+  score: number;
+}

@@ -1,3 +1,4 @@
+import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/context/AuthContext";
 import { useNotebook } from "@/context/NotebookContext";
 import { Note } from "@/interfaces/AppInterfaces";
@@ -85,11 +86,56 @@ export default function NotesDashboardScreen() {
     setNotebook(notebookId, note.id);
     router.push("/game_scores");
   };
-  
-  const handleReviewSummary = (note: Note) => {
+
+  // NUEVO: validación antes de navegar a notesSummary
+  const handleReviewSummary = async (note: Note) => {
     setNotebook(notebookId, note.id);
-    router.push("/dashboard");
+    try {
+      const resp = await fetch(
+        `${API_URL}/users/${user!.uid}/notebooks/${notebookId}/notes/${note.id}`,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      if (!resp.ok) throw new Error("Fetch failed");
+      const data = await resp.json();
+      if (!data.summary) {
+        Alert.alert("No AI summary", "This note does not have a generated AI summary yet, pls generated one.");
+        return;
+      }
+      router.push("/notesSummary");
+    } catch (e) {
+      console.error("Error checking summary:", e);
+      Alert.alert("Error", "No se pudo verificar el resumen.");
+    }
   };
+
+  const handleDeleteNote = (note: Note) => {
+    Alert.alert(
+      "Delete Note",
+      `Are you sure you want to delete "${note.title}"? This will delete your summary and games. This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const resp = await fetch(
+                `${API_URL}/users/${user!.uid}/notebooks/${notebookId}/notes/${note.id}`,
+                { method: "DELETE", headers: { "Content-Type": "application/json" } }
+              );
+              if (!resp.ok) throw new Error("Delete failed");
+              fetchNotes();
+              setExpanded(null);
+            } catch (e: any) {
+              console.error("Error deleting note:", e);
+              Alert.alert("Error", e.message || "Could not delete note");
+            }
+          },
+        },
+      ]
+    );
+  };
+  
 
   if (loading) {
     return (
@@ -186,6 +232,17 @@ export default function NotesDashboardScreen() {
                       />
                       <Text style={styles.subText}>Review IA summary</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.subItem}
+                      onPress={() => handleDeleteNote(note)}
+                    >
+                      <MaterialCommunityIcons
+                        name="delete-outline"
+                        size={18}
+                        color="#2A1E1E"
+                      />
+                      <Text style={styles.subText}>Delete note</Text>
+                    </TouchableOpacity>
                   </View>
                 )}
               </View>
@@ -194,24 +251,7 @@ export default function NotesDashboardScreen() {
         </ScrollView>
 
         {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-            <MaterialCommunityIcons name="plus-box" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Add notebook</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-            <MaterialCommunityIcons name="home" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
-            <MaterialCommunityIcons name="qrcode-scan" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Scan notes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
-            <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Your games</Text>
-          </TouchableOpacity>
-        </View>
+        <BottomNav/>
       </View>
     </SafeAreaView>
   );
@@ -324,36 +364,5 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 15,
     fontWeight: "bold",
-  },
-  bottomNav: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#F2A9A0",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: "#2A1E1E",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  navItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  navText: {
-    fontSize: 10,
-    marginTop: 2,
-    textAlign: "center",
-    color: "#2A1E1E",
   },
 });

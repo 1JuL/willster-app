@@ -1,4 +1,5 @@
 // app/notescanned.tsx
+import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/context/AuthContext";
 import { useNotebook } from "@/context/NotebookContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -7,11 +8,13 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -144,6 +147,7 @@ export default function NoteScannedScreen() {
   }
 
   return (
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
     <View style={styles.container}>
       {/* header */}
       <View style={styles.header}>
@@ -151,7 +155,7 @@ export default function NoteScannedScreen() {
           onPress={() => justScanned ? router.push("/dashboard") : router.back()}
           style={styles.backButton}
         >
-          <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
+          <MaterialCommunityIcons name="arrow-left" size={22} color="#2A1E1E" />
         </TouchableOpacity>
         <Text style={styles.headerText}>
           {justScanned ? "New Scanned Note" : `${note.title} notes`}
@@ -169,7 +173,9 @@ export default function NoteScannedScreen() {
           />
           <Text style={styles.textTitle}>{note.title}:</Text>
         </View>
+        <ScrollView>
         <Text style={styles.text}>{note.content}</Text>
+        </ScrollView>
       </View>
 
       {/* botones generar */}
@@ -201,25 +207,9 @@ export default function NoteScannedScreen() {
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-          <MaterialCommunityIcons name="plus-box" size={24} color="black" />
-          <Text style={styles.navText}>Add notebook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-          <MaterialCommunityIcons name="home" size={24} color="black" />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
-          <MaterialCommunityIcons name="qrcode-scan" size={24} color="black" />
-          <Text style={styles.navText}>Scan notes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
-          <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="black" />
-          <Text style={styles.navText}>Your games</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNav />
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -230,11 +220,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2A9A0",
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    paddingTop: 50,
+    padding: 20,
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10,
   },
   backButton: { marginRight: 10 },
-  headerText: { fontSize: 20, fontWeight: "bold", color: "black" },
+  headerText: { fontSize: 17, fontWeight: "bold", color: "#2A1E1E", paddingRight: 10, textAlign: "center" },
   content: {
     flex: 1,
     backgroundColor: "#D2BFA6",
@@ -245,18 +236,9 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   contentHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  textTitle: { fontSize: 20, fontWeight: "bold", color: "#2A1E1E", padding: 10 },
+  textTitle: { fontSize: 20, fontWeight: "bold", color: "#2A1E1E", padding: 5 },
   text: { fontSize: 14, lineHeight: 20, color: "#2A1E1E", fontWeight: "bold", textAlign: "justify" },
   actions: { flexDirection: "row", justifyContent: "space-around", marginBottom: 130 },
   btn: { backgroundColor: "#F2A9A0", padding: 10, borderRadius: 8, minWidth: 110, alignSelf: "center" },
   btnText: { color: "#2A1E1E", fontWeight: "bold", fontSize: 12, textAlign: "center" },
-  bottomNav: {
-    position: "absolute", bottom: 20, left: 20, right: 20,
-    flexDirection: "row", justifyContent: "space-around",
-    backgroundColor: "#F2A9A0", paddingVertical: 12, paddingHorizontal: 10,
-    borderRadius: 25, elevation: 5, shadowColor: "#2A1E1E",
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84,
-  },
-  navItem: { flex: 1, alignItems: "center", justifyContent: "center" },
-  navText: { fontSize: 10, marginTop: 2, color: "black" },
 });

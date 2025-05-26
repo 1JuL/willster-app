@@ -1,5 +1,4 @@
-// app/home.tsx
-import AddNotebook from "@/components/addNotebook";
+import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/context/AuthContext";
 import { useNotebook } from "@/context/NotebookContext"; // Importar el contexto
 import { Notebook } from "@/interfaces/AppInterfaces";
@@ -14,8 +13,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -30,6 +30,9 @@ export default function HomeScreen() {
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [renameModalVisible, setRenameModalVisible] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<Notebook | null>(null);
+  const [renameTitle, setRenameTitle] = useState("");
 
   const fetchNotebooks = async () => {
     if (!user) {
@@ -78,28 +81,72 @@ export default function HomeScreen() {
     setIsModalVisible(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleNotebookCreated = () => {
-    // Callback para cuando se crea el notebook exitosamente
-    setIsModalVisible(false);
-    // Recargar la lista de notebooks
-    fetchNotebooks();
-  };
-
   const handleNotebookPress = (notebook: Notebook) => {
-    // AQUÍ ESTÁ EL CAMBIO IMPORTANTE: Configurar el contexto antes de navegar
-    setNotebook(notebook.id, ""); // Pasar el ID del notebook seleccionado
+    setNotebook(notebook.id, "");
     router.push("/notesdashboard");
   };
 
-  const handleGamesPress = (notebook: Notebook) => {
-    // También configurar el contexto para los juegos
-    setNotebook(notebook.id, "");
-    router.push(`/game_scores`);
+  const handleDeleteNotebook = (nb: Notebook) => {
+    Alert.alert(
+      "Delete Notebook",
+      `¿Are you sure you want to delete this notebook "${nb.title}"? This will delete al your notes and games. This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const resp = await fetch(
+                `${API_URL}/users/${user!.uid}/notebooks/${nb.id}`,
+                { method: "DELETE", headers: { "Content-Type": "application/json" } }
+              );
+              if (!resp.ok) {
+                const err = await resp.text();
+                throw new Error(err || "Delete failed");
+              }
+              // Si eliminó, recargamos lista y cerramos expansión
+              fetchNotebooks();
+              setExpanded(null);
+            } catch (e: any) {
+              console.error(e);
+              Alert.alert("Error", e.message || "No se pudo eliminar el notebook");
+            }
+          },
+        },
+      ]
+    );
   };
+
+  const openRename = (nb: Notebook) => {
+    setRenameTarget(nb);
+    setRenameTitle(nb.title);
+    setRenameModalVisible(true);
+  };
+
+  const handleSaveRename = async () => {
+      if (!renameTarget) return;
+      try {
+        const resp = await fetch(
+          `${API_URL}/users/${user!.uid}/notebooks/${renameTarget.id}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: renameTitle.trim() }),
+          }
+        );
+        if (!resp.ok) {
+          const err = await resp.text();
+          throw new Error(err || "Rename failed");
+        }
+        setRenameModalVisible(false);
+        fetchNotebooks();
+        setExpanded(null);
+      } catch (e: any) {
+        console.error(e);
+        Alert.alert("Error", e.message);
+      }
+    };
 
   if (isLoading) {
     return (
@@ -117,9 +164,6 @@ export default function HomeScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push("/profile")}>
-            <MaterialCommunityIcons name="account-circle" size={34} color="#2A1E1E" />
-          </TouchableOpacity>
           <Text style={styles.headerText}>Home</Text>
         </View>
 
@@ -163,10 +207,17 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.subItem}
-                      onPress={() => handleGamesPress(notebook)}
+                      onPress={() => openRename(notebook)}
                     >
-                      <MaterialCommunityIcons name="puzzle" size={18} />
-                      <Text style={styles.subText}>{notebook.title} games</Text>
+                      <MaterialCommunityIcons name="pencil-outline" size={18}/>
+                      <Text style={styles.subText}>Rename Notebook</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.subItem}
+                      onPress={() => handleDeleteNotebook(notebook)}
+                    >
+                      <MaterialCommunityIcons name="delete-outline" size={18} />
+                      <Text style={styles.subText}>Delete Notebook</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -174,46 +225,42 @@ export default function HomeScreen() {
             ))
           )}
         </ScrollView>
-
-        {/* Modal for Adding Notebook */}
-        <Modal
-          visible={isModalVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={handleCloseModal}
-        >
+        {/* Rename Notebook Modal */}
+        <Modal visible={renameModalVisible} transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Add New Notebook</Text>
-                <TouchableOpacity onPress={handleCloseModal}>
-                  <MaterialCommunityIcons name="close" size={24} color="#2A1E1E" />
+                <Text style={styles.modalTitle}>Rename Notebook</Text>
+                <TouchableOpacity onPress={() => setRenameModalVisible(false)}>
+                  <MaterialCommunityIcons name="close" size={24} color="#2A1E1E"/>
                 </TouchableOpacity>
               </View>
-              <AddNotebook onSuccess={handleNotebookCreated} />
+              <TextInput
+                style={styles.input}
+                value={renameTitle}
+                onChangeText={setRenameTitle}
+                placeholder="New title..."
+              />
+              <View style={styles.renameActions}>
+                <TouchableOpacity
+                  onPress={() => setRenameModalVisible(false)}
+                  style={styles.cancelBtn}
+                >
+                  <Text>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSaveRename}
+                  style={[styles.saveBtn, !renameTitle.trim() && { opacity: 0.5 }]}
+                  disabled={!renameTitle.trim()}
+                >
+                  <Text style={styles.saveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
-
         {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity onPress={handleAddNotebook} style={styles.navItem}>
-            <MaterialCommunityIcons name="plus-box" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Add notebook</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-            <MaterialCommunityIcons name="home" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
-            <MaterialCommunityIcons name="qrcode-scan" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Scan notes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/game_scores")} style={styles.navItem}>
-            <MaterialCommunityIcons name="gamepad-variant-outline" size={24} color="#2A1E1E" />
-            <Text style={styles.navText}>Your games</Text>
-          </TouchableOpacity>
-        </View>
+        <BottomNav onNotebookAdded={fetchNotebooks} /> 
       </View>
     </SafeAreaView>
   );
@@ -238,6 +285,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2A9A0",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     padding: 15,
     gap: 10,
     borderBottomEndRadius: 10,
@@ -321,60 +369,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
   },
-  bottomNav: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#F2A9A0",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: "#2A1E1E",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  navItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  navText: {
-    fontSize: 10,
-    marginTop: 2,
-    textAlign: "center",
-    color: "#2A1E1E",
-  },
+  /* Modal styles */
   modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#FFF5DC",
-    margin: 20,
-    borderRadius: 20,
-    padding: 20,
-    width: "90%",
-    maxWidth: 400,
+    backgroundColor: "#FFF5DC", width: "80%", borderRadius: 20, padding: 20,
   },
   modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
+    flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10,
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#2A1E1E",
+  modalTitle: { fontSize: 18, fontWeight: "bold", color: "#2A1E1E" },
+  input: {
+    borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, backgroundColor: "white",
   },
+  renameActions: { flexDirection: "row", justifyContent: "flex-end", marginTop: 15 },
+  cancelBtn: { marginRight: 15 },
+  saveBtn: { backgroundColor: "#4CAF50", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8 },
+  saveText: { color: "white", fontWeight: "bold" },
 });

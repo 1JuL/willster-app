@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -100,13 +101,14 @@ export default function ScannerScreen() {
       setNoteTitle("");
     } catch (e: any) {
       console.error("Error guardando nota:", e);
-      Alert.alert("Error", e.message || "No se pudo guardar la nota.");
+      Alert.alert("Error", e.message || "We couldnt save the note.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
     <View style={styles.container}>
       {/* header */}
       <View style={styles.header}>
@@ -138,7 +140,7 @@ export default function ScannerScreen() {
       <Modal visible={showTitleModal} transparent animationType="slide">
         <View style={styles.overlay}>
           <View style={styles.titleModal}>
-            <Text style={styles.modalTitle}>Título de la nota</Text>
+            <Text style={styles.modalTitle}>Notes title</Text>
             <TextInput
               value={noteTitle}
               onChangeText={setNoteTitle}
@@ -153,20 +155,21 @@ export default function ScannerScreen() {
                 }}
                 style={styles.cancelBtn}
               >
-                <Text>Cancelar</Text>
+                <Text>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 disabled={!noteTitle.trim() || isSaving}
                 onPress={() => saveNote(noteTitle)}
                 style={[styles.saveBtn, (!noteTitle.trim() || isSaving) && styles.disabledBtn]}
               >
-                {isSaving ? <ActivityIndicator color="white" /> : <Text style={styles.saveText}>Guardar</Text>}
+                {isSaving ? <ActivityIndicator color="white" /> : <Text style={styles.saveText}>Save</Text>}
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -180,7 +183,8 @@ const styles = StyleSheet.create({
     flexDirection: "row", 
     alignItems: "center", 
     padding: 15, 
-    paddingTop: 50 
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10,
   },
   backButton: { 
     marginRight: 10 
