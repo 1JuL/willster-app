@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ainotes",
-    "slug": "ainotes",
+    "name": "willster-app",
+    "slug": "willster-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,9 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "softwareKeyboardLayoutMode": "pan",
+      "package": "com.ironxd.willsterapp"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +38,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a945d8be-e334-4aab-be72-d20c54ba2307"
+      }
+    },
+    "owner": "1jul"
   }
 }
