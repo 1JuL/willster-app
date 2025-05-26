@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -121,16 +122,16 @@ export default function ScannerScreen() {
           </TouchableOpacity>
           <Text style={styles.headerText}>Scan your notes</Text>
         </View>
-
-        {/* camera + ocr */}
-        <View style={styles.content}>
-          <CameraOCR
-            onTextExtracted={handleTextExtracted}
-            onImageSelected={handleImageSelected}
-            characterImageSource={require("@/assets/images/will scanner.png")}
-          />
-        </View>
-
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {/* camera + ocr */}
+          <View style={styles.content}>
+            <CameraOCR
+              onTextExtracted={handleTextExtracted}
+              onImageSelected={handleImageSelected}
+              characterImageSource={require("@/assets/images/will scanner.png")}
+            />
+          </View>
+        </ScrollView>
         {/* notebook picker */}
         <NotebookPicker
           visible={showNotebookModal}
@@ -202,10 +203,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "black",
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 100,
+  },
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingBottom: 100,
   },
   overlay: {
     flex: 1,
