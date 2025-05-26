@@ -35,21 +35,21 @@ export default function NotesDashboardScreen() {
       setLoading(false);
       return;
     }
-    
+
     try {
       const url = `${API_URL}/users/${user.uid}/notebooks/${notebookId}/notes`;
-      
+
       const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch notes: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setNotes(data);
     } catch (error) {
@@ -74,14 +74,14 @@ export default function NotesDashboardScreen() {
   }, [user, notebookId]);
 
   const toggleExpand = (noteId: string) => {
-    setExpanded(prev => (prev === noteId ? null : noteId));
+    setExpanded((prev) => (prev === noteId ? null : noteId));
   };
 
   const handleReviewNotes = (note: Note) => {
     setNotebook(notebookId, note.id);
     router.push("/notescanned");
   };
-  
+
   const handleReviewGames = (note: Note) => {
     setNotebook(notebookId, note.id);
     router.push("/game_scores");
@@ -98,13 +98,16 @@ export default function NotesDashboardScreen() {
       if (!resp.ok) throw new Error("Fetch failed");
       const data = await resp.json();
       if (!data.summary) {
-        Alert.alert("No AI summary", "This note does not have a generated AI summary yet, pls generated one.");
+        Alert.alert(
+          "No AI summary",
+          "This note does not have a generated AI summary yet, please generated one."
+        );
         return;
       }
       router.push("/notesSummary");
     } catch (e) {
       console.error("Error checking summary:", e);
-      Alert.alert("Error", "No se pudo verificar el resumen.");
+      Alert.alert("Error", "The summary could not be verified.");
     }
   };
 
@@ -135,7 +138,6 @@ export default function NotesDashboardScreen() {
       ]
     );
   };
-  
 
   if (loading) {
     return (
@@ -163,9 +165,7 @@ export default function NotesDashboardScreen() {
         {/* Content */}
         <ScrollView
           contentContainerStyle={styles.scroll}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
           {notes.length === 0 ? (
             <View style={styles.emptyState}>
@@ -179,7 +179,7 @@ export default function NotesDashboardScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            notes.map(note => (
+            notes.map((note) => (
               <View key={note.id} style={styles.subjectBlock}>
                 <TouchableOpacity
                   style={styles.subjectButton}
@@ -214,33 +214,18 @@ export default function NotesDashboardScreen() {
                       style={styles.subItem}
                       onPress={() => handleReviewGames(note)}
                     >
-                      <MaterialCommunityIcons
-                        name="puzzle"
-                        size={18}
-                        color="#2A1E1E"
-                      />
+                      <MaterialCommunityIcons name="puzzle" size={18} color="#2A1E1E" />
                       <Text style={styles.subText}>Review games</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.subItem}
                       onPress={() => handleReviewSummary(note)}
                     >
-                      <MaterialCommunityIcons
-                        name="inbox-full-outline"
-                        size={18}
-                        color="#2A1E1E"
-                      />
+                      <MaterialCommunityIcons name="inbox-full-outline" size={18} color="#2A1E1E" />
                       <Text style={styles.subText}>Review IA summary</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.subItem}
-                      onPress={() => handleDeleteNote(note)}
-                    >
-                      <MaterialCommunityIcons
-                        name="delete-outline"
-                        size={18}
-                        color="#2A1E1E"
-                      />
+                    <TouchableOpacity style={styles.subItem} onPress={() => handleDeleteNote(note)}>
+                      <MaterialCommunityIcons name="delete-outline" size={18} color="#2A1E1E" />
                       <Text style={styles.subText}>Delete note</Text>
                     </TouchableOpacity>
                   </View>
@@ -251,7 +236,7 @@ export default function NotesDashboardScreen() {
         </ScrollView>
 
         {/* Bottom Navigation */}
-        <BottomNav/>
+        <BottomNav />
       </View>
     </SafeAreaView>
   );

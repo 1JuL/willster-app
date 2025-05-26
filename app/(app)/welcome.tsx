@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -66,6 +67,7 @@ export default function Welcome() {
   return (
     <>
       <View style={styles.container}>
+        <StatusBar style="dark" />
         {/* Sección superior: Logo, título y subtítulo */}
         <View style={styles.topSection}>
           <Image

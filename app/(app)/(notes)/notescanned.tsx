@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNotebook } from "@/context/NotebookContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -12,7 +13,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -59,7 +60,7 @@ export default function NoteScannedScreen() {
         setHasGames(gameResp.ok);
       } catch (e) {
         console.error("Error fetching note or games:", e);
-        Alert.alert("Error", "No se pudo cargar la nota o sus juegos.");
+        Alert.alert("Error", "The note or its games could not be loaded.");
       } finally {
         setLoading(false);
       }
@@ -81,14 +82,16 @@ export default function NoteScannedScreen() {
       );
       if (!resp.ok) {
         const err = await resp.json();
-        throw new Error(err.message || "Resumen falló");
+        throw new Error(err.message || "Summary failed");
       }
       const updated = await resp.json();
-      setNote(n => n ? { ...n, summary: updated.summary, titleSummary: updated.titleSummary } : n);
+      setNote((n) =>
+        n ? { ...n, summary: updated.summary, titleSummary: updated.titleSummary } : n
+      );
       router.push("/notesSummary");
     } catch (e: any) {
       console.error("Error generating summary:", e);
-      Alert.alert("Error", e.message || "No se pudo generar el resumen.");
+      Alert.alert("Error", e.message || "The summary could not be generated.");
     } finally {
       setWorkingSummary(false);
     }
@@ -104,7 +107,7 @@ export default function NoteScannedScreen() {
       const types: ("memory" | "hangman" | "quiz")[] = ["memory", "hangman", "quiz"];
       try {
         await Promise.all(
-          types.map(async type => {
+          types.map(async (type) => {
             const resp = await fetch(
               `${API_URL}/users/${user.uid}/notebooks/${notebookId}/notes/${noteId}/games`,
               {
@@ -121,7 +124,7 @@ export default function NoteScannedScreen() {
         router.push("/game_selection");
       } catch (e) {
         console.error("Error generating games:", e);
-        Alert.alert("Error", "Falló la generación de juegos.");
+        Alert.alert("Error", "Game generation failed.");
       } finally {
         setWorkingGames(false);
       }
@@ -141,74 +144,67 @@ export default function NoteScannedScreen() {
   if (!note) {
     return (
       <View style={styles.loader}>
-        <Text>No se encontró la nota.</Text>
+        <Text>The note was not found.</Text>
       </View>
     );
   }
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-    <View style={styles.container}>
-      {/* header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => justScanned ? router.push("/dashboard") : router.back()}
-          style={styles.backButton}
-        >
-          <MaterialCommunityIcons name="arrow-left" size={22} color="#2A1E1E" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>
-          {justScanned ? "New Scanned Note" : `${note.title} notes`}
-        </Text>
-      </View>
-
-      {/* contenido */}
-      <View style={styles.content}>
-        <View style={styles.contentHeader}>
-          <MaterialCommunityIcons
-            name="book-open-page-variant-outline"
-            size={24}
-            color="#2A1E1E"
-            style={{ marginRight: 8 }}
-          />
-          <Text style={styles.textTitle}>{note.title}:</Text>
+      <StatusBar style="dark" />
+      <View style={styles.container}>
+        {/* header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => (justScanned ? router.push("/dashboard") : router.back())}
+            style={styles.backButton}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={22} color="#2A1E1E" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>
+            {justScanned ? "New Scanned Note" : `${note.title} notes`}
+          </Text>
         </View>
-        <ScrollView>
-        <Text style={styles.text}>{note.content}</Text>
-        </ScrollView>
-      </View>
 
-      {/* botones generar */}
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={handleSummary}
-          disabled={workingSummary}
-        >
-          {workingSummary
-            ? <ActivityIndicator color="white" />
-            : <Text style={styles.btnText}>
+        {/* contenido */}
+        <View style={styles.content}>
+          <View style={styles.contentHeader}>
+            <MaterialCommunityIcons
+              name="book-open-page-variant-outline"
+              size={24}
+              color="#2A1E1E"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.textTitle}>{note.title}:</Text>
+          </View>
+          <ScrollView>
+            <Text style={styles.text}>{note.content}</Text>
+          </ScrollView>
+        </View>
+
+        {/* botones generar */}
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.btn} onPress={handleSummary} disabled={workingSummary}>
+            {workingSummary ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.btnText}>
                 {note.summary ? "See AI summary" : "Generate AI summary"}
               </Text>
-          }
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={handleGames}
-          disabled={workingGames}
-        >
-          {workingGames
-            ? <ActivityIndicator color="white" />
-            : <Text style={styles.btnText}>
-                {hasGames ? "Game Score" : "Generate games"}
-              </Text>
-          }
-        </TouchableOpacity>
-      </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={handleGames} disabled={workingGames}>
+            {workingGames ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.btnText}>{hasGames ? "Game Score" : "Generate games"}</Text>
+            )}
+          </TouchableOpacity>
+        </View>
 
-      {/* Bottom Navigation */}
-      <BottomNav />
-    </View>
+        {/* Bottom Navigation */}
+        <BottomNav />
+      </View>
     </SafeAreaView>
   );
 }
@@ -225,7 +221,13 @@ const styles = StyleSheet.create({
     borderBottomStartRadius: 10,
   },
   backButton: { marginRight: 10 },
-  headerText: { fontSize: 17, fontWeight: "bold", color: "#2A1E1E", paddingRight: 10, textAlign: "center" },
+  headerText: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#2A1E1E",
+    paddingRight: 10,
+    textAlign: "center",
+  },
   content: {
     flex: 1,
     backgroundColor: "#D2BFA6",
@@ -237,8 +239,20 @@ const styles = StyleSheet.create({
   },
   contentHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
   textTitle: { fontSize: 20, fontWeight: "bold", color: "#2A1E1E", padding: 5 },
-  text: { fontSize: 14, lineHeight: 20, color: "#2A1E1E", fontWeight: "bold", textAlign: "justify" },
+  text: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#2A1E1E",
+    fontWeight: "bold",
+    textAlign: "justify",
+  },
   actions: { flexDirection: "row", justifyContent: "space-around", marginBottom: 130 },
-  btn: { backgroundColor: "#F2A9A0", padding: 10, borderRadius: 8, minWidth: 110, alignSelf: "center" },
+  btn: {
+    backgroundColor: "#F2A9A0",
+    padding: 10,
+    borderRadius: 8,
+    minWidth: 110,
+    alignSelf: "center",
+  },
   btnText: { color: "#2A1E1E", fontWeight: "bold", fontSize: 12, textAlign: "center" },
 });

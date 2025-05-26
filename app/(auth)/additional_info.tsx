@@ -1,6 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -75,9 +76,9 @@ export default function AdditionalInfo() {
       });
       if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(errorText || "Error al guardar información");
+        throw new Error(errorText || "Error saving information");
       }
-      Alert.alert("Éxito", "Información guardada correctamente.", [
+      Alert.alert("Success", "Information saved correctly.", [
         { text: "OK", onPress: () => router.replace("/dashboard") },
       ]);
     } catch (error: any) {
@@ -89,7 +90,8 @@ export default function AdditionalInfo() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Información Adicional</Text>
+      <StatusBar style="dark" />
+      <Text style={styles.title}>Additional information</Text>
 
       {/* Username read-only */}
       <TextInput
@@ -99,7 +101,7 @@ export default function AdditionalInfo() {
       />
 
       {/* Photo selection */}
-      <Text style={styles.sectionLabel}>Selecciona tu avatar</Text>
+      <Text style={styles.sectionLabel}>Select your avatar</Text>
       <View style={styles.photoContainer}>
         {photoOptions.map((url) => (
           <TouchableOpacity key={url} onPress={() => setPhotoUrl(url)}>
@@ -114,29 +116,29 @@ export default function AdditionalInfo() {
       {/* Carrera */}
       <TextInput
         style={styles.input}
-        placeholder="Carrera"
+        placeholder="Career"
         placeholderTextColor="#999"
         value={carrera}
         onChangeText={setCarrera}
       />
 
       {/* Horario picker */}
-      <Text style={styles.sectionLabel}>Horario de estudio</Text>
+      <Text style={styles.sectionLabel}>Study schedule</Text>
       <View style={styles.pickerWrapper}>
         <Picker
           selectedValue={horario}
           onValueChange={(value: React.SetStateAction<string>) => setHorario(value)}
           style={styles.picker}
         >
-          <Picker.Item label="Mañana" value="mañana" />
-          <Picker.Item label="Tarde" value="tarde" />
-          <Picker.Item label="Noche" value="noche" />
+          <Picker.Item label="Morning" value="Morning" />
+          <Picker.Item label="Afternoon" value="Afternoon" />
+          <Picker.Item label="Night" value="Night" />
         </Picker>
       </View>
 
       <TextInput
         style={styles.input}
-        placeholder="Método (ej. visual)"
+        placeholder="Method (e.g. visual)"
         placeholderTextColor="#999"
         value={metodo}
         onChangeText={setMetodo}
@@ -144,7 +146,7 @@ export default function AdditionalInfo() {
 
       <TextInput
         style={styles.input}
-        placeholder="Temas de interés (separados por coma)"
+        placeholder="Topics of interest (separated by commas)"
         placeholderTextColor="#999"
         value={temasInteres}
         onChangeText={setTemasInteres}
@@ -155,7 +157,7 @@ export default function AdditionalInfo() {
         onPress={handleSubmit}
         disabled={loading}
       >
-        <Text style={styles.buttonText}>{loading ? "Guardando..." : "Guardar"}</Text>
+        <Text style={styles.buttonText}>{loading ? "Saving..." : "Save"}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

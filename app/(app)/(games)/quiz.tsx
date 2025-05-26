@@ -3,6 +3,7 @@
 import { useNotebook } from "@/context/NotebookContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
@@ -18,7 +19,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
-const POINTS_PER = 10;
+const POINTS_PER = 20;
 
 type Question = {
   question: string;
@@ -115,6 +116,7 @@ export default function QuizGameScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar style="dark" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} color="#000" />
@@ -204,8 +206,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#F4AB9C",
-    padding: 12,
+    padding: 15,
     justifyContent: "space-between",
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10,
   },
   headerTitle: { fontSize: 20, fontWeight: "700" },
   content: { flex: 1, padding: 16 },

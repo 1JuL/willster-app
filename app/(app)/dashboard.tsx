@@ -4,6 +4,7 @@ import { useNotebook } from "@/context/NotebookContext"; // Importar el contexto
 import { Notebook } from "@/interfaces/AppInterfaces";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,7 +16,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -97,10 +98,10 @@ export default function HomeScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              const resp = await fetch(
-                `${API_URL}/users/${user!.uid}/notebooks/${nb.id}`,
-                { method: "DELETE", headers: { "Content-Type": "application/json" } }
-              );
+              const resp = await fetch(`${API_URL}/users/${user!.uid}/notebooks/${nb.id}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+              });
               if (!resp.ok) {
                 const err = await resp.text();
                 throw new Error(err || "Delete failed");
@@ -125,28 +126,25 @@ export default function HomeScreen() {
   };
 
   const handleSaveRename = async () => {
-      if (!renameTarget) return;
-      try {
-        const resp = await fetch(
-          `${API_URL}/users/${user!.uid}/notebooks/${renameTarget.id}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title: renameTitle.trim() }),
-          }
-        );
-        if (!resp.ok) {
-          const err = await resp.text();
-          throw new Error(err || "Rename failed");
-        }
-        setRenameModalVisible(false);
-        fetchNotebooks();
-        setExpanded(null);
-      } catch (e: any) {
-        console.error(e);
-        Alert.alert("Error", e.message);
+    if (!renameTarget) return;
+    try {
+      const resp = await fetch(`${API_URL}/users/${user!.uid}/notebooks/${renameTarget.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: renameTitle.trim() }),
+      });
+      if (!resp.ok) {
+        const err = await resp.text();
+        throw new Error(err || "Rename failed");
       }
-    };
+      setRenameModalVisible(false);
+      fetchNotebooks();
+      setExpanded(null);
+    } catch (e: any) {
+      console.error(e);
+      Alert.alert("Error", e.message);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -161,6 +159,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar style="dark" />
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -188,7 +187,11 @@ export default function HomeScreen() {
                   onPress={() => toggleExpand(notebook.id)}
                   style={styles.subjectButton}
                 >
-                  <MaterialCommunityIcons name="book-open-page-variant-outline" size={18} color="#2A1E1E" />
+                  <MaterialCommunityIcons
+                    name="book-open-page-variant-outline"
+                    size={18}
+                    color="#2A1E1E"
+                  />
                   <Text style={styles.subjectText}>{notebook.title}</Text>
                   <MaterialCommunityIcons
                     name={expanded === notebook.id ? "chevron-up" : "chevron-down"}
@@ -205,11 +208,8 @@ export default function HomeScreen() {
                       <MaterialCommunityIcons name="format-list-bulleted" size={18} />
                       <Text style={styles.subText}>{notebook.title} Notes</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.subItem}
-                      onPress={() => openRename(notebook)}
-                    >
-                      <MaterialCommunityIcons name="pencil-outline" size={18}/>
+                    <TouchableOpacity style={styles.subItem} onPress={() => openRename(notebook)}>
+                      <MaterialCommunityIcons name="pencil-outline" size={18} />
                       <Text style={styles.subText}>Rename Notebook</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -232,7 +232,7 @@ export default function HomeScreen() {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Rename Notebook</Text>
                 <TouchableOpacity onPress={() => setRenameModalVisible(false)}>
-                  <MaterialCommunityIcons name="close" size={24} color="#2A1E1E"/>
+                  <MaterialCommunityIcons name="close" size={24} color="#2A1E1E" />
                 </TouchableOpacity>
               </View>
               <TextInput
@@ -260,7 +260,7 @@ export default function HomeScreen() {
           </View>
         </Modal>
         {/* Bottom Navigation */}
-        <BottomNav onNotebookAdded={fetchNotebooks} /> 
+        <BottomNav onNotebookAdded={fetchNotebooks} />
       </View>
     </SafeAreaView>
   );
@@ -371,20 +371,38 @@ const styles = StyleSheet.create({
   },
   /* Modal styles */
   modalOverlay: {
-    flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center",
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#FFF5DC", width: "80%", borderRadius: 20, padding: 20,
+    backgroundColor: "#FFF5DC",
+    width: "80%",
+    borderRadius: 20,
+    padding: 20,
   },
   modalHeader: {
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
   modalTitle: { fontSize: 18, fontWeight: "bold", color: "#2A1E1E" },
   input: {
-    borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: "white",
   },
   renameActions: { flexDirection: "row", justifyContent: "flex-end", marginTop: 15 },
   cancelBtn: { marginRight: 15 },
-  saveBtn: { backgroundColor: "#4CAF50", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8 },
+  saveBtn: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
   saveText: { color: "white", fontWeight: "bold" },
 });

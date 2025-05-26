@@ -1,8 +1,9 @@
-import { uploadImageToFirebase } from '@/config/uploadImagesToFirebase';
-import { CameraOCRProps } from '@/interfaces/AppInterfaces';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import { uploadImageToFirebase } from "@/config/uploadImagesToFirebase";
+import { CameraOCRProps } from "@/interfaces/AppInterfaces";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,11 +11,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-} from 'react-native';
+  View,
+} from "react-native";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
-
 
 export default function CameraOCR({
   onTextExtracted,
@@ -25,15 +25,14 @@ export default function CameraOCR({
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [extractedText, setExtractedText] = useState<string>('');
-
+  const [extractedText, setExtractedText] = useState<string>("");
 
   const handleImageSelection = async (uri: string) => {
     setSelectedImage(uri);
     setIsUploading(true);
 
     // Genera un nombre único y la ruta en el bucket
-    const ext = uri.split('.').pop() || 'jpg';
+    const ext = uri.split(".").pop() || "jpg";
     const fileName = `ocr-${Date.now()}.${ext}`;
 
     // Sube a Firebase y recibe la URL pública
@@ -41,7 +40,7 @@ export default function CameraOCR({
     setIsUploading(false);
 
     if (!publicUrl) {
-      return Alert.alert('Error', 'No se pudo subir la imagen.');
+      return Alert.alert("Error", "The image could not be uploaded.");
     }
 
     setSelectedImageUrl(publicUrl);
@@ -50,8 +49,8 @@ export default function CameraOCR({
 
   const openCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      return Alert.alert('Permiso necesario', 'Necesito acceso a la cámara.');
+    if (status !== "granted") {
+      return Alert.alert("Permission required", "I need access to the camera.");
     }
 
     const result = await ImagePicker.launchCameraAsync({
@@ -67,8 +66,8 @@ export default function CameraOCR({
 
   const openGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      return Alert.alert('Permiso necesario', 'Necesito acceso a la galería.');
+    if (status !== "granted") {
+      return Alert.alert("Permission required", "I need access to the gallery.");
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -84,14 +83,14 @@ export default function CameraOCR({
 
   const extractText = async () => {
     if (!selectedImageUrl) {
-      return Alert.alert('Sin imagen', 'Selecciona primero una imagen.');
+      return Alert.alert("No image", "Select an image first.");
     }
 
     setIsProcessing(true);
     try {
       const resp = await fetch(`${API_URL}/ocr`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: selectedImageUrl }),
       });
       if (!resp.ok) {
@@ -99,16 +98,16 @@ export default function CameraOCR({
         throw new Error(err);
       }
       const json = await resp.json();
-      const text = json.text?.trim() || '';
+      const text = json.text?.trim() || "";
       if (!text) {
-        Alert.alert('The image is to heavy', 'The image is to heavy to process.');
+        Alert.alert("The image is to heavy", "The image is to heavy to process.");
       } else {
         setExtractedText(text);
         onTextExtracted?.(text);
       }
     } catch (e: any) {
-      console.error('OCR error:', e);
-      Alert.alert('Error OCR', e.message);
+      console.error("OCR error:", e);
+      Alert.alert("Error OCR", e.message);
     } finally {
       setIsProcessing(false);
     }
@@ -117,23 +116,17 @@ export default function CameraOCR({
   const reset = () => {
     setSelectedImage(null);
     setSelectedImageUrl(null);
-    setExtractedText('');
-
+    setExtractedText("");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.instructionText}>
-        Touch the image to open{'\n'}the camera
-      </Text>
+      <StatusBar style="dark" />
+      <Text style={styles.instructionText}>Touch the image to open{"\n"}the camera</Text>
 
       <TouchableOpacity onPress={openCamera} style={styles.characterContainer}>
         {characterImageSource ? (
-          <Image
-            source={characterImageSource}
-            style={styles.characterImage}
-            resizeMode="contain"
-          />
+          <Image source={characterImageSource} style={styles.characterImage} resizeMode="contain" />
         ) : (
           <View style={styles.placeholder}>
             <MaterialCommunityIcons name="camera" size={80} color="#EF5C40" />
@@ -189,83 +182,83 @@ export default function CameraOCR({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', paddingTop: 20 },
-  instructionText: { fontSize: 18, textAlign: 'center', marginBottom: 20 },
-  characterContainer: { alignItems: 'center', marginBottom: 20 },
-  characterImage: { width: 200, height: 200 },
+  container: { flex: 1, alignItems: "center", paddingTop: 20 },
+  instructionText: { fontSize: 18, textAlign: "center", marginBottom: 20 },
+  characterContainer: { alignItems: "center", marginBottom: 20 },
+  characterImage: { width: 315, height: 472 },
   placeholder: {
     width: 200,
     height: 200,
-    backgroundColor: '#F2A9A0',
+    backgroundColor: "#F2A9A0",
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
-  preview: { position: 'relative', marginBottom: 20 },
+  preview: { position: "relative", marginBottom: 20 },
   image: { width: 200, height: 150, borderRadius: 10 },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: -10,
     right: -10,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 12,
   },
   uploadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   uploadingText: {
     marginLeft: 8,
-    color: '#EF5C40',
+    color: "#EF5C40",
     fontSize: 14,
   },
-  buttons: { flexDirection: 'row', gap: 15 },
+  buttons: { flexDirection: "row", gap: 15 },
   galleryBtn: {
-    backgroundColor: '#4A4A4A',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "#4A4A4A",
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
     borderRadius: 8,
     marginRight: 10,
   },
-  btnText: { color: 'white', marginLeft: 8, fontWeight: 'bold' },
+  btnText: { color: "white", marginLeft: 8, fontWeight: "bold" },
   ocrBtn: {
-    backgroundColor: '#EF5C40',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "#EF5C40",
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
     borderRadius: 8,
   },
-  disabledBtn: { backgroundColor: '#cccccc' },
+  disabledBtn: { backgroundColor: "#cccccc" },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modal: {
-    backgroundColor: '#FFF5DC',
-    width: '80%',
+    backgroundColor: "#FFF5DC",
+    width: "80%",
     borderRadius: 20,
     padding: 20,
-    maxHeight: '70%',
+    maxHeight: "70%",
   },
   modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 10,
   },
-  modalTitle: { fontSize: 20, fontWeight: 'bold' },
+  modalTitle: { fontSize: 20, fontWeight: "bold" },
   textContainer: { marginVertical: 10 },
   extracted: { fontSize: 16, lineHeight: 22 },
   okBtn: {
-    backgroundColor: '#EF5C40',
+    backgroundColor: "#EF5C40",
     padding: 12,
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 8,
     marginTop: 10,
   },
-  okText: { color: 'white', fontWeight: 'bold' },
+  okText: { color: "white", fontWeight: "bold" },
 });

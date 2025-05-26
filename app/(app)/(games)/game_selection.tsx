@@ -2,6 +2,7 @@
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -41,7 +42,7 @@ export default function GameSelection() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      {/* Header */}
+      <StatusBar style="dark" />v{/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color="#000" />
@@ -49,7 +50,6 @@ export default function GameSelection() {
         <Text style={styles.headerTitle}>Learning Games</Text>
         <View style={styles.backButton} />
       </View>
-
       {/* Game cards */}
       <View style={styles.list}>
         {games.map((game) => (

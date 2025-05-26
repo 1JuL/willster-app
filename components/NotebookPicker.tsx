@@ -1,27 +1,23 @@
 // components/NotebookPicker.tsx
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React from 'react';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
 import {
-    ActivityIndicator,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
+  ActivityIndicator,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { Props } from '../interfaces/AppInterfaces';
+import { StatusBar } from "expo-status-bar";
+import { Props } from "../interfaces/AppInterfaces";
 
-export default function NotebookPicker({
-  visible,
-  notebooks,
-  isSaving,
-  onSelect,
-  onClose
-}: Props) {
+export default function NotebookPicker({ visible, notebooks, isSaving, onSelect, onClose }: Props) {
   return (
     <Modal visible={visible} transparent animationType="slide">
+      <StatusBar style="dark" />
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <View style={styles.header}>
@@ -31,7 +27,7 @@ export default function NotebookPicker({
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.list}>
-            {notebooks.map(nb => (
+            {notebooks.map((nb) => (
               <TouchableOpacity
                 key={nb.id}
                 style={styles.item}

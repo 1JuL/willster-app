@@ -6,6 +6,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Calendar } from "react-native-calendars";
@@ -68,7 +69,7 @@ export default function StudySessionScreen() {
           final = status;
         }
         if (final !== "granted") {
-          Alert.alert("Permiso denegado", "No podrás recibir notificaciones.");
+          Alert.alert("Permission denied", "You will not be able to receive notifications.");
         }
       }
     })();
@@ -86,14 +87,14 @@ export default function StudySessionScreen() {
     // compute trigger
     const triggerDate = new Date(`${selectedDay}T${date.toTimeString().slice(0, 5)}:00`);
     if (triggerDate.getTime() <= Date.now()) {
-      Alert.alert("Fecha pasada", "Elige una hora futura.");
+      Alert.alert("Past date", "Choose a future time.");
       return;
     }
 
     const id = await Notifications.scheduleNotificationAsync({
       content: {
-        title: "🎓 ¿Oye tú, no se te olvida algo? 🧐",
-        body: `Sesión de estudio: ${triggerDate.toLocaleString()}`,
+        title: "🎓 Hey, aren't you forgetting something? 🧐",
+        body: `Study session at: ${triggerDate.toLocaleString()}`,
       },
       trigger: { type: "date", date: triggerDate } as any,
     });
@@ -101,19 +102,19 @@ export default function StudySessionScreen() {
     const newReminders = [{ id, timestamp: triggerDate.getTime() }];
     await saveToStorage(newReminders);
     setPreview("");
-    Alert.alert("Listo", "Recordatorio programado.");
+    Alert.alert("Ready", "Scheduled reminder.");
   };
 
   const deleteReminder = async (reminderId: string) => {
     await Notifications.cancelScheduledNotificationAsync(reminderId);
     await saveToStorage([]);
-    Alert.alert("Eliminado", "El recordatorio ha sido borrado.");
+    Alert.alert("Deleted", "The reminder has been deleted.");
   };
 
   const deleteAll = async () => {
     await Notifications.cancelAllScheduledNotificationsAsync();
     await saveToStorage([]);
-    Alert.alert("Eliminados", "Todos los recordatorios han sido borrados.");
+    Alert.alert("Eliminated", "All reminders have been deleted.");
   };
 
   // update preview
@@ -124,6 +125,7 @@ export default function StudySessionScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar style="dark" />
       {/* Header (Top App Bar) */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -165,25 +167,25 @@ export default function StudySessionScreen() {
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.saveButton} onPress={scheduleNotification}>
-            <Text style={styles.saveText}>Guardar</Text>
+            <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.deleteAllButton} onPress={deleteAll}>
-            <Text style={styles.deleteAllText}>Borrar todos</Text>
+            <Text style={styles.deleteAllText}>Delete All</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.listContainer}>
-          <Text style={styles.listTitle}>Recordatorios guardados:</Text>
+          <Text style={styles.listTitle}>Saved Reminders:</Text>
           {reminders.map((r) => (
             <View key={r.id} style={styles.listRow}>
               <Text style={styles.listItem}>• {new Date(r.timestamp).toLocaleString()}</Text>
               <TouchableOpacity style={styles.deleteButton} onPress={() => deleteReminder(r.id)}>
-                <Text style={styles.deleteText}>Eliminar</Text>
+                <Text style={styles.deleteText}>Delete</Text>
               </TouchableOpacity>
             </View>
           ))}
           {reminders.length === 0 && (
-            <Text style={styles.emptyText}>No hay recordatorios programados</Text>
+            <Text style={styles.emptyText}>There are no reminders scheduled</Text>
           )}
         </View>
       </View>

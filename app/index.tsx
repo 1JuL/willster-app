@@ -1,6 +1,7 @@
 import { Typewriter } from "@/components/Typewriter"; // ajusta ruta
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import LottieView from "lottie-react-native";
 import React, { useEffect } from "react";
 import { Dimensions, Image, StyleSheet, View } from "react-native";
@@ -24,6 +25,7 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+      <StatusBar translucent style="dark" />
       {/* Fondo Lottie */}
       <LottieView
         source={require("@/assets/animations/linear-background.json")}

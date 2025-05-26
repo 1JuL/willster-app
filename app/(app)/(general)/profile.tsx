@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -109,11 +110,13 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar style="dark" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
+        <View style={{ width: 24 }} />
       </View>
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>Hello! {userName}</Text>
@@ -136,7 +139,7 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <Text style={styles.label}>Carrera</Text>
+        <Text style={styles.label}>Career</Text>
         <TextInput
           style={styles.input}
           placeholder="Carrera"
@@ -144,20 +147,20 @@ export default function ProfileScreen() {
           onChangeText={setCarrera}
         />
 
-        <Text style={styles.label}>Horario</Text>
+        <Text style={styles.label}>Schedule</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={horario}
             onValueChange={(v) => setHorario(v)}
             style={styles.picker}
           >
-            <Picker.Item label="Mañana" value="mañana" />
-            <Picker.Item label="Tarde" value="tarde" />
-            <Picker.Item label="Noche" value="noche" />
+            <Picker.Item label="Morning" value="Morning" />
+            <Picker.Item label="Afternoon" value="Afternoon" />
+            <Picker.Item label="Night" value="Night" />
           </Picker>
         </View>
 
-        <Text style={styles.label}>Método</Text>
+        <Text style={styles.label}>Method</Text>
         <TextInput
           style={styles.input}
           placeholder="Método de estudio"
@@ -165,7 +168,7 @@ export default function ProfileScreen() {
           onChangeText={setMetodo}
         />
 
-        <Text style={styles.label}>Temas de interés</Text>
+        <Text style={styles.label}>Topics of interest</Text>
         <TextInput
           style={styles.input}
           placeholder="tema1, tema2, tema3"
@@ -179,7 +182,7 @@ export default function ProfileScreen() {
             onPress={handleSave}
             disabled={saving}
           >
-            <Text style={styles.buttonText}>{saving ? "Guardando..." : "Guardar cambios"}</Text>
+            <Text style={styles.buttonText}>{saving ? "Saving..." : "Save changes"}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.reminders} onPress={() => router.push("/studysession")}>
@@ -200,9 +203,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FEF3D9" },
   header: {
     flexDirection: "row",
-    padding: 12,
     backgroundColor: "#F4AB9C",
     alignItems: "center",
+    padding: 15,
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10,
   },
   headerTitle: { fontSize: 18, fontWeight: "700", marginLeft: 155 },
   title: {

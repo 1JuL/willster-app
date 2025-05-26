@@ -3,6 +3,7 @@
 import { useNotebook } from "@/context/NotebookContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
@@ -67,7 +68,7 @@ export default function Hangedman() {
   // next or end
   useEffect(() => {
     if (!loading && isComplete) {
-      setScore((s) => s + 10);
+      setScore((s) => s + 20);
       if (idx + 1 < words.length) {
         setIdx(idx + 1);
         setGuessed(new Set());
@@ -114,12 +115,14 @@ export default function Hangedman() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar style="dark" />
       <View style={styles.screen}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
             <MaterialIcons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Hanged-man</Text>
+          <View style={{ width: 24 }} />
         </View>
 
         <View style={styles.imageContainer}>
@@ -129,9 +132,9 @@ export default function Hangedman() {
 
         <Text style={styles.title}>Hanged-man</Text>
         <Text style={styles.subtitle}>
-          Palabra {idx + 1} de {words.length}
+          Word {idx + 1} of {words.length}
         </Text>
-        <Text style={styles.lives}>Vidas: {lives}</Text>
+        <Text style={styles.lives}>Lives: {lives}</Text>
 
         <View style={styles.wordContainer}>
           {word.split("").map((ch, i) => (
@@ -214,23 +217,27 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 50,
     marginBottom: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     flexDirection: "row",
-    padding: 12,
     backgroundColor: "#F4AB9C",
     alignItems: "center",
+    padding: 15,
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10,
   },
   headerTitle: { fontSize: 18, fontWeight: "700", marginLeft: 130 },
   imageHeader: {
-    width: 200,
-    height: 200,
+    width: 180,
+    height: 180,
     resizeMode: "contain",
     alignSelf: "center",
   },
   title: { fontSize: 24, fontWeight: "700", textAlign: "center" },
-  subtitle: { fontSize: 16, textAlign: "center", marginBottom: 8 },
-  lives: { fontSize: 16, textAlign: "center", marginBottom: 16 },
+  subtitle: { fontSize: 16, textAlign: "center", marginBottom: 8, marginTop: 8 },
+  lives: { fontSize: 20, textAlign: "center", marginBottom: 16, fontWeight: "600" },
   wordContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -239,17 +246,18 @@ const styles = StyleSheet.create({
   letter: { fontSize: 32, marginHorizontal: 4 },
   letters: { alignItems: "center", justifyContent: "center" },
   letterBox: {
-    width: 40,
-    height: 40,
+    width: 45,
+    height: 45,
     margin: 4,
     backgroundColor: "#FEF6E8",
     borderRadius: 4,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 10,
   },
   letterBoxDisabled: { backgroundColor: "#DDD" },
-  letterBoxText: { fontSize: 18, fontWeight: "600" },
-  score: { fontSize: 18, textAlign: "center", marginTop: 20 },
+  letterBoxText: { fontSize: 18, fontWeight: "700" },
+  score: { fontSize: 28, textAlign: "center", marginBottom: 50, fontWeight: "700" },
   loader: { flex: 1, alignItems: "center", justifyContent: "center" },
 
   modalOverlay: {

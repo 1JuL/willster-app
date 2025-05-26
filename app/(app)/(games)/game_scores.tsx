@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNotebook } from "@/context/NotebookContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -41,13 +42,7 @@ const Donut = ({ percentage }: { percentage: number }) => {
   return (
     <Svg width={size} height={size}>
       {/* fondo rojo */}
-      <Circle
-        stroke="#e74c3c"
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        strokeWidth={strokeWidth}
-      />
+      <Circle stroke="#e74c3c" cx={size / 2} cy={size / 2} r={radius} strokeWidth={strokeWidth} />
       {/* porción verde */}
       <Circle
         stroke="#2ecc71"
@@ -123,7 +118,7 @@ export default function GameScoresScreen() {
         setGames(fetched);
       } catch (e) {
         console.error("Error loading games:", e);
-        Alert.alert("Error", "No se pudieron cargar los puntajes de los juegos.");
+        Alert.alert("Error", "Game scores could not be loaded. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -142,12 +137,16 @@ export default function GameScoresScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar style="dark" />
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>{noteTitle}{"\n"}Games</Text>
+        <Text style={styles.headerText}>
+          {noteTitle}
+          {"\n"}Games
+        </Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -174,14 +173,8 @@ export default function GameScoresScreen() {
 
                 {/* Score display */}
                 <View style={styles.cardRow}>
-                  <MaterialCommunityIcons
-                    name="flag-checkered"
-                    size={18}
-                    color="#2A1E1E"
-                  />
-                  <Text style={styles.cardText}>
-                    You got a score of: {g.score}
-                  </Text>
+                  <MaterialCommunityIcons name="flag-checkered" size={18} color="#2A1E1E" />
+                  <Text style={styles.cardText}>You got a score of: {g.score}</Text>
                 </View>
               </View>
               <Donut percentage={g.score} />
@@ -192,7 +185,6 @@ export default function GameScoresScreen() {
 
       {/* Bottom Navigation */}
       <BottomNav />
-
     </SafeAreaView>
   );
 }

@@ -1,8 +1,17 @@
 // components/AddNotebook.tsx
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -44,7 +53,7 @@ const AddNotebook = ({ onSuccess }: AddNotebookProps) => {
 
       Alert.alert("Success", "Notebook created!");
       setTitle("");
-      
+
       // Si hay callback, ejecutarlo (para cerrar modal)
       if (onSuccess) {
         onSuccess();
@@ -62,6 +71,7 @@ const AddNotebook = ({ onSuccess }: AddNotebookProps) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="dark" />
       <Text style={styles.label}>Notebook title</Text>
       <TextInput
         placeholder="e.g. Water cycle"
@@ -69,12 +79,9 @@ const AddNotebook = ({ onSuccess }: AddNotebookProps) => {
         value={title}
         onChangeText={setTitle}
       />
-      <TouchableOpacity 
-        onPress={handleCreateNotebook} 
-        style={[
-          styles.button,
-          isLoading && styles.buttonDisabled
-        ]}
+      <TouchableOpacity
+        onPress={handleCreateNotebook}
+        style={[styles.button, isLoading && styles.buttonDisabled]}
         disabled={isLoading}
       >
         {isLoading ? (
@@ -93,13 +100,13 @@ const AddNotebook = ({ onSuccess }: AddNotebookProps) => {
 export default AddNotebook;
 
 const styles = StyleSheet.create({
-  container: { 
-    padding: 0 // Cambiado de 20 a 0 para que funcione mejor en el modal
+  container: {
+    padding: 0, // Cambiado de 20 a 0 para que funcione mejor en el modal
   },
-  label: { 
-    fontSize: 16, 
+  label: {
+    fontSize: 16,
     marginBottom: 8,
-    color: "black" 
+    color: "black",
   },
   input: {
     borderColor: "#ccc",
@@ -120,9 +127,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#B8B8B8", // Color gris cuando está deshabilitado
     opacity: 0.7,
   },
-  buttonText: { 
-    color: "white", 
-    fontWeight: "bold" 
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
   },
   loadingContainer: {
     flexDirection: "row",

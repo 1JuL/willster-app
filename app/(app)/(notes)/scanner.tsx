@@ -6,6 +6,7 @@ import { useNotebook } from "@/context/NotebookContext";
 import { Notebook } from "@/interfaces/AppInterfaces";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -30,7 +31,9 @@ export default function ScannerScreen() {
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [showNotebookModal, setShowNotebookModal] = useState(false);
   const [showTitleModal, setShowTitleModal] = useState(false);
-  const [pendingNotebook, setPendingNotebook] = useState<{ id: string; title: string } | null>(null);
+  const [pendingNotebook, setPendingNotebook] = useState<{ id: string; title: string } | null>(
+    null
+  );
   const [noteTitle, setNoteTitle] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -67,7 +70,7 @@ export default function ScannerScreen() {
   // final save
   const saveNote = async (customTitle: string) => {
     if (!user || !pendingNotebook) {
-      return Alert.alert("Error", "Faltan datos para guardar.");
+      return Alert.alert("Error", "Missing data to save.");
     }
     setIsSaving(true);
     try {
@@ -88,7 +91,7 @@ export default function ScannerScreen() {
 
       // update contexts
       setNotebook(pendingNotebook.id, data.id);
-      Alert.alert("Éxito", `Nota guardada en "${pendingNotebook.title}"`);
+      Alert.alert("Success", `Note saved in "${pendingNotebook.title}"`);
 
       // navigate to note
       router.push(`/notescanned`);
@@ -109,101 +112,106 @@ export default function ScannerScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-    <View style={styles.container}>
-      {/* header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Scan your notes</Text>
-      </View>
+      <StatusBar style="dark" />
+      <View style={styles.container}>
+        {/* header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Scan your notes</Text>
+        </View>
 
-      {/* camera + ocr */}
-      <View style={styles.content}>
-        <CameraOCR
-          onTextExtracted={handleTextExtracted}
-          onImageSelected={handleImageSelected}
-          characterImageSource={require("@/assets/images/will scanner.png")}
+        {/* camera + ocr */}
+        <View style={styles.content}>
+          <CameraOCR
+            onTextExtracted={handleTextExtracted}
+            onImageSelected={handleImageSelected}
+            characterImageSource={require("@/assets/images/will scanner.png")}
+          />
+        </View>
+
+        {/* notebook picker */}
+        <NotebookPicker
+          visible={showNotebookModal}
+          notebooks={notebooks}
+          isSaving={isSaving}
+          onSelect={onNotebookSelect}
+          onClose={() => setShowNotebookModal(false)}
         />
-      </View>
 
-      {/* notebook picker */}
-      <NotebookPicker
-        visible={showNotebookModal}
-        notebooks={notebooks}
-        isSaving={isSaving}
-        onSelect={onNotebookSelect}
-        onClose={() => setShowNotebookModal(false)}
-      />
-
-      {/* title input modal */}
-      <Modal visible={showTitleModal} transparent animationType="slide">
-        <View style={styles.overlay}>
-          <View style={styles.titleModal}>
-            <Text style={styles.modalTitle}>Notes title</Text>
-            <TextInput
-              value={noteTitle}
-              onChangeText={setNoteTitle}
-              placeholder="Escribe un título..."
-              style={styles.input}
-            />
-            <View style={styles.actions}>
-              <TouchableOpacity
-                onPress={() => {
-                  setShowTitleModal(false);
-                  setPendingNotebook(null);
-                }}
-                style={styles.cancelBtn}
-              >
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                disabled={!noteTitle.trim() || isSaving}
-                onPress={() => saveNote(noteTitle)}
-                style={[styles.saveBtn, (!noteTitle.trim() || isSaving) && styles.disabledBtn]}
-              >
-                {isSaving ? <ActivityIndicator color="white" /> : <Text style={styles.saveText}>Save</Text>}
-              </TouchableOpacity>
+        {/* title input modal */}
+        <Modal visible={showTitleModal} transparent animationType="slide">
+          <View style={styles.overlay}>
+            <View style={styles.titleModal}>
+              <Text style={styles.modalTitle}>Notes title</Text>
+              <TextInput
+                value={noteTitle}
+                onChangeText={setNoteTitle}
+                placeholder="Write a title..."
+                style={styles.input}
+              />
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowTitleModal(false);
+                    setPendingNotebook(null);
+                  }}
+                  style={styles.cancelBtn}
+                >
+                  <Text>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  disabled={!noteTitle.trim() || isSaving}
+                  onPress={() => saveNote(noteTitle)}
+                  style={[styles.saveBtn, (!noteTitle.trim() || isSaving) && styles.disabledBtn]}
+                >
+                  {isSaving ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.saveText}>Save</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#FFF5DC" 
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF5DC",
   },
-  header: { 
-    backgroundColor: "#F2A9A0", 
-    flexDirection: "row", 
-    alignItems: "center", 
-    padding: 15, 
+  header: {
+    backgroundColor: "#F2A9A0",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
     borderBottomEndRadius: 10,
     borderBottomStartRadius: 10,
   },
-  backButton: { 
-    marginRight: 10 
+  backButton: {
+    marginRight: 10,
   },
-  headerText: { 
-    fontSize: 20, 
-    fontWeight: "bold", 
-    color: "black" 
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "black",
   },
-  content: { 
-    flex: 1, 
-    paddingHorizontal: 20, 
-    paddingBottom: 100 
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 100,
   },
-  overlay: { 
-    flex: 1, 
-    backgroundColor: "rgba(0,0,0,0.5)", 
-    justifyContent: "center", 
-    alignItems: "center" 
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   titleModal: {
     backgroundColor: "#FFF5DC",
@@ -211,37 +219,37 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
   },
-  modalTitle: { 
-    fontSize: 18, 
-    fontWeight: "bold", 
-    marginBottom: 10 
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
-  input: { 
-    borderWidth: 1, 
-    borderColor: "#ccc", 
-    borderRadius: 8, 
-    padding: 10, 
-    backgroundColor: "white" 
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: "white",
   },
-  actions: { 
-    flexDirection: "row", 
-    justifyContent: "flex-end", 
-    marginTop: 15 
+  actions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 15,
   },
-  cancelBtn: { 
-    marginRight: 15 
+  cancelBtn: {
+    marginRight: 15,
   },
-  saveBtn: { 
-    backgroundColor: "#4CAF50", 
-    paddingVertical: 10, 
-    paddingHorizontal: 20, 
-    borderRadius: 8 
+  saveBtn: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
   },
-  saveText: { 
-    color: "white", 
-    fontWeight: "bold" 
+  saveText: {
+    color: "white",
+    fontWeight: "bold",
   },
-  disabledBtn: { 
-    backgroundColor: "#aaa" 
+  disabledBtn: {
+    backgroundColor: "#aaa",
   },
 });

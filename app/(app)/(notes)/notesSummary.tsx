@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNotebook } from "@/context/NotebookContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -42,7 +43,7 @@ export default function NotesSummaryScreen() {
         if (!resp.ok) throw new Error("Fetch failed");
 
         if (!data.summary) {
-          Alert.alert("Sin resumen", "Esta nota aún no tiene resumen generado.");
+          Alert.alert("No summary", "This note does not yet have a summary generated.");
           router.back();
           return;
         }
@@ -56,7 +57,7 @@ export default function NotesSummaryScreen() {
         setHasGames(gameResp.ok);
       } catch (e) {
         console.error("Error fetching summary or games:", e);
-        Alert.alert("Error", "No se pudo cargar el resumen ni su estado de juegos.");
+        Alert.alert("Error", "The summary and your game status could not be loaded.");
         router.back();
       } finally {
         setLoading(false);
@@ -70,11 +71,7 @@ export default function NotesSummaryScreen() {
 
     if (!hasGames) {
       setWorkingGames(true);
-      const types: ("memory" | "hangman" | "quiz")[] = [
-        "memory",
-        "hangman",
-        "quiz",
-      ];
+      const types: ("memory" | "hangman" | "quiz")[] = ["memory", "hangman", "quiz"];
       try {
         await Promise.all(
           types.map(async (type) => {
@@ -94,7 +91,7 @@ export default function NotesSummaryScreen() {
         router.push("/game_selection");
       } catch (e) {
         console.error("Error generating games:", e);
-        Alert.alert("Error", "Falló la generación de juegos.");
+        Alert.alert("Error", "Game generation failed.");
       } finally {
         setWorkingGames(false);
       }
@@ -113,51 +110,46 @@ export default function NotesSummaryScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#2A1E1E" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>{titleSummary} AI summary</Text>
-      </View>
-
-      {/* Summary Card */}
-      <View style={styles.content}>
-        <View style={styles.contentHeader}>
-          <MaterialCommunityIcons
-            name="book-open-variant"
-            size={24}
-            color="#2A1E1E"
-            style={{ marginRight: 8 }}
-          />
-          <Text style={styles.textTitle}>Your {titleSummary} summary:</Text>
+      <StatusBar style="dark" />
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <MaterialCommunityIcons name="arrow-left" size={24} color="#2A1E1E" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>{titleSummary} AI summary</Text>
         </View>
-        <ScrollView>
-          <Text style={styles.text}>{summary}</Text>
-        </ScrollView>
-      </View>
 
-      {/* Generate / Score Button */}
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.btn}
-          onPress={handleGames}
-          disabled={workingGames}
-        >
-          {workingGames ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.btnText}>
-              {hasGames ? "Game Score" : "Generate games"}
-            </Text>
-          )}
-        </TouchableOpacity>
-      </View>
+        {/* Summary Card */}
+        <View style={styles.content}>
+          <View style={styles.contentHeader}>
+            <MaterialCommunityIcons
+              name="book-open-variant"
+              size={24}
+              color="#2A1E1E"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.textTitle}>Your {titleSummary} summary:</Text>
+          </View>
+          <ScrollView>
+            <Text style={styles.text}>{summary}</Text>
+          </ScrollView>
+        </View>
 
-      {/* Bottom Navigation */}
-      <BottomNav/>
-    </View>
+        {/* Generate / Score Button */}
+        <View style={styles.actions}>
+          <TouchableOpacity style={styles.btn} onPress={handleGames} disabled={workingGames}>
+            {workingGames ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.btnText}>{hasGames ? "Game Score" : "Generate games"}</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Bottom Navigation */}
+        <BottomNav />
+      </View>
     </SafeAreaView>
   );
 }
@@ -174,7 +166,7 @@ const styles = StyleSheet.create({
     borderBottomStartRadius: 10,
   },
   backButton: { marginRight: 10 },
-  headerText: { fontSize: 17, fontWeight: "bold", color: "#2A1E1E", paddingRight: 10},
+  headerText: { fontSize: 17, fontWeight: "bold", color: "#2A1E1E", paddingRight: 10 },
   content: {
     flex: 1,
     backgroundColor: "#D2BFA6",
@@ -185,9 +177,21 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   contentHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  textTitle: { fontSize: 20, fontWeight: "bold", color: "#2A1E1E", padding: 5},
-  text: { fontSize: 14, lineHeight: 20, color: "#2A1E1E", fontWeight: "bold", textAlign: "justify" },
+  textTitle: { fontSize: 20, fontWeight: "bold", color: "#2A1E1E", padding: 5 },
+  text: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#2A1E1E",
+    fontWeight: "bold",
+    textAlign: "justify",
+  },
   actions: { flexDirection: "row", justifyContent: "space-around", marginBottom: 130 },
-  btn: { backgroundColor: "#F2A9A0", padding: 10, borderRadius: 8, minWidth: 110, alignSelf: "center" },
+  btn: {
+    backgroundColor: "#F2A9A0",
+    padding: 10,
+    borderRadius: 8,
+    minWidth: 110,
+    alignSelf: "center",
+  },
   btnText: { color: "#2A1E1E", fontWeight: "bold", fontSize: 12, textAlign: "center" },
 });

@@ -1,6 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { MagicScroll } from "@appandflow/react-native-magic-scroll";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -29,8 +30,8 @@ export default function login() {
       await login(email, password);
       Toast.show({
         type: "success",
-        text1: "Inicio de sesión exitoso",
-        text2: `Bienvenido de nuevo ${name}!`,
+        text1: "Successful login",
+        text2: `Welcome back ${name}!`,
       });
       setTimeout(() => {
         router.replace("/dashboard");
@@ -39,8 +40,8 @@ export default function login() {
       console.log({ error });
       Toast.show({
         type: "error",
-        text1: "Error al iniciar sesión",
-        text2: error.message || "Ocurrió un error durante el inicio de sesión.",
+        text1: "Login error",
+        text2: error.message || "An error occurred during login.",
       });
     } finally {
       setLoading(false);
@@ -50,6 +51,7 @@ export default function login() {
   return (
     <>
       <View style={styles.container}>
+        <StatusBar style="dark" />
         {/* Mascot */}
         <Image
           source={require("@/assets/images/will.png")}

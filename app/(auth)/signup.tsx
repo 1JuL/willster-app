@@ -2,6 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/utils/firebase";
 import { MagicScroll } from "@appandflow/react-native-magic-scroll";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
 import {
@@ -30,7 +31,7 @@ export default function signup() {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Los correos electrónicos no coinciden.",
+        text2: "The emails do not match.",
       });
       return;
     }
@@ -41,8 +42,8 @@ export default function signup() {
       await userCredential.user.reload();
       Toast.show({
         type: "success",
-        text1: "Registro exitoso",
-        text2: `Bienvenido ${displayName}!`,
+        text1: "Successful registration",
+        text2: `Welcome ${displayName}!`,
       });
       try {
         await login(email, password);
@@ -57,7 +58,7 @@ export default function signup() {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: error.message || "Ocurrió un error durante el proceso de registro.",
+        text2: error.message || "An error occurred during the registration process.",
       });
     } finally {
       setLoading(false);
@@ -67,6 +68,7 @@ export default function signup() {
   return (
     <>
       <View style={styles.container}>
+        <StatusBar style="dark" />
         {/* Mascot */}
         <Image
           source={require("@/assets/images/will.png")}

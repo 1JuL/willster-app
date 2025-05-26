@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface BottomNavProps {
   /** Se ejecuta cuando se crea un notebook para refrescar la lista */
@@ -25,7 +26,12 @@ export default function BottomNav({ onNotebookAdded }: BottomNavProps) {
   return (
     <>
       {/* Modal para crear notebook */}
-      <Modal visible={isModalVisible} transparent animationType="slide" onRequestClose={handleClose}>
+      <Modal
+        visible={isModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={handleClose}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
@@ -40,29 +46,32 @@ export default function BottomNav({ onNotebookAdded }: BottomNavProps) {
       </Modal>
 
       {/* Barra de navegación inferior */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity onPress={handleOpen} style={styles.navItem}>
-          <MaterialCommunityIcons name="plus-box" size={24} color="black" />
-          <Text style={styles.navText}>Add notebook</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/dashboard")} style={styles.navItem}>
-          <MaterialCommunityIcons name="home" size={24} color="black" />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
-          <MaterialCommunityIcons name="qrcode-scan" size={24} color="black" />
-          <Text style={styles.navText}>Scan notes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/profile")} style={styles.navItem}>
-          <MaterialCommunityIcons name="account-circle" size={24} color="black" />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.container} edges={["bottom"]}>
+        <View style={styles.bottomNav}>
+          <TouchableOpacity onPress={handleOpen} style={styles.navItem}>
+            <MaterialCommunityIcons name="plus-box" size={24} color="black" />
+            <Text style={styles.navText}>Add notebook</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.replace("/dashboard")} style={styles.navItem}>
+            <MaterialCommunityIcons name="home" size={24} color="black" />
+            <Text style={styles.navText}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/scanner")} style={styles.navItem}>
+            <MaterialCommunityIcons name="qrcode-scan" size={24} color="black" />
+            <Text style={styles.navText}>Scan notes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/profile")} style={styles.navItem}>
+            <MaterialCommunityIcons name="account-circle" size={24} color="black" />
+            <Text style={styles.navText}>Profile</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#FFF5DC" },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",

@@ -3,6 +3,7 @@
 import { useNotebook } from "@/context/NotebookContext";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { getAuth } from "firebase/auth";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -138,8 +139,8 @@ export default function MemoryGameScreen() {
     ) {
       Toast.show({
         type: "info",
-        text1: "¡Recuerda Hay más cartas!",
-        text2: "Desliza hacia abajo para verlas todas.",
+        text1: "Remember! There are more cards!",
+        text2: "Swipe down to see them all.",
         position: "top",
         visibilityTime: 3500,
         autoHide: true,
@@ -149,6 +150,17 @@ export default function MemoryGameScreen() {
       setHasShownScrollReminder(true); // Marcar que ya se mostró
     }
   }, [loading, cards, listHeight, contentHeight, hasShownScrollReminder]);
+
+  useEffect(() => {
+    if (!loading && cards.length > 0) {
+      if (matched.size === cards.length / 2 && cards.length > 0) {
+        if (!gameOver && timeLeft > 0) {
+          clearInterval(timerRef.current!);
+          endGame();
+        }
+      }
+    }
+  }, [matched, cards.length, loading, gameOver, timeLeft]);
 
   const patchScore = async (finalScore: number) => {
     try {
@@ -200,11 +212,6 @@ export default function MemoryGameScreen() {
       }, 800);
     }
     firstPick.current = null;
-
-    if (matched.size + 1 === cards.length / 2) {
-      clearInterval(timerRef.current!);
-      endGame();
-    }
   };
 
   if (loading) {
@@ -217,6 +224,7 @@ export default function MemoryGameScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <StatusBar style="dark" />
       <View style={styles.screen}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
@@ -319,10 +327,12 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#FEF3D9" },
   header: {
     flexDirection: "row",
-    padding: 12,
+    padding: 15,
     backgroundColor: "#F4AB9C",
     alignItems: "center",
     justifyContent: "space-between",
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10,
   },
   headerTitle: { fontSize: 18, fontWeight: "700" },
   timer: { fontSize: 16, fontWeight: "600" },
@@ -346,7 +356,7 @@ const styles = StyleSheet.create({
   cardText: {
     textAlign: "center",
     padding: 4,
-    fontSize: 14,
+    fontSize: 18,
     color: "#000",
   },
   loader: { flex: 1, alignItems: "center", justifyContent: "center" },
