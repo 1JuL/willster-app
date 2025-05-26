@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import LottieView from "lottie-react-native";
 import React, { useEffect } from "react";
-import { Dimensions, Image, StyleSheet, View } from "react-native";
+import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -52,6 +52,7 @@ export default function Index() {
           pauseTime={200}
           style={styles.typewriterText}
         />
+        <Text style={styles.bottomText}>Your Study Buddy</Text>
       </View>
     </View>
   );
@@ -82,5 +83,13 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto_Black",
     color: "#FFFFFF",
     textAlign: "center",
+  },
+  bottomText: {
+    fontSize: 18,
+    fontFamily: "Roboto_Black",
+    color: "#FFFFFF",
+    textAlign: "center",
+    marginTop: 10,
+    fontWeight: "bold",
   },
 });
