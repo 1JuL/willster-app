@@ -120,7 +120,7 @@ export default function StudySessionScreen() {
   // update preview
   useEffect(() => {
     const dt = new Date(`${selectedDay}T${date.toTimeString().slice(0, 5)}:00`);
-    setPreview(`Previsualización: ${dt.toLocaleString()}`);
+    setPreview(`Preview: ${dt.toLocaleString()}`);
   }, [selectedDay, date]);
 
   return (
