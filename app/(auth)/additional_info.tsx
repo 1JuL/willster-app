@@ -79,7 +79,7 @@ export default function AdditionalInfo() {
         throw new Error(errorText || "Error saving information");
       }
       Alert.alert("Success", "Information saved correctly.", [
-        { text: "OK", onPress: () => router.replace("/dashboard") },
+        { text: "OK", onPress: () => router.replace("/welcome") },
       ]);
     } catch (error: any) {
       Alert.alert("Error", error.message);
