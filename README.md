@@ -42,17 +42,26 @@ La app permite escanear apuntes físicos, generar resúmenes automáticos con IA
 ## 📂 Project Structure
 
 ```bash
-src/
+.
+├── .vscode/            # VSCode configuration files
+├── app/                # Main application screens and routing
+├── assets/             # Images, icons, fonts, and static resources
+├── components/         # Reusable UI components
+├── config/             # App and service configurations
+├── context/            # Global state management with Context API
+├── hooks/              # Custom React hooks
+├── interfaces/         # TypeScript interfaces and types
+├── utils/              # Utility and helper functions
 │
-├── components/       # Componentes reutilizables
-├── screens/          # Pantallas principales
-├── navigation/       # Navegación de la app
-├── services/         # Conexión con APIs
-├── hooks/            # Custom hooks
-├── context/          # Context API
-├── utils/            # Funciones auxiliares
-├── assets/           # Imágenes e íconos
-└── types/            # Tipados TypeScript
+├── .gitignore
+├── app.json            # Expo configuration
+├── eas.json            # EAS Build configuration
+├── eslint.config.js    # ESLint configuration
+├── metro.config.js     # Metro bundler configuration
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+└── README.md
 ```
 
 ---
