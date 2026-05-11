@@ -1,50 +1,179 @@
-# Welcome to your Expo app 👋
+# 📚 Willster App - Frontend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Frontend móvil de **Willster**, una aplicación enfocada en mejorar el estudio mediante IA, OCR y gamificación.  
+La app permite escanear apuntes físicos, generar resúmenes automáticos con IA y convertir el contenido en juegos interactivos para reforzar el aprendizaje.
 
-## Get started
+---
 
-1. Install dependencies
+## 🚀 Features
 
-   ```bash
-   npm install
-   ```
+- 📷 Escaneo de notas mediante OCR
+- 🤖 Generación automática de resúmenes usando IA (Gemini API)
+- 📝 Gestión de notebooks y notas
+- 🎮 Juegos interactivos basados en el contenido:
+  - Memory Matching
+  - Hangman
+  - Quiz estilo Kahoot
+- 🔐 Autenticación con Firebase
+- ☁️ Integración con backend en NestJS
+- 📱 Aplicación móvil desarrollada con React Native + Expo
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🛠️ Tech Stack
 
-In the output, you'll find options to open the app in a
+### Frontend
+- React Native
+- Expo Go
+- TypeScript
+- React Navigation
+- Axios
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Backend & Services
+- NestJS API
+- Firebase Authentication
+- Firebase Storage
+- Firebase Database
+- Gemini API
+- OCR API
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
-
-When you're ready, run:
+## 📂 Project Structure
 
 ```bash
-npm run reset-project
+src/
+│
+├── components/       # Componentes reutilizables
+├── screens/          # Pantallas principales
+├── navigation/       # Navegación de la app
+├── services/         # Conexión con APIs
+├── hooks/            # Custom hooks
+├── context/          # Context API
+├── utils/            # Funciones auxiliares
+├── assets/           # Imágenes e íconos
+└── types/            # Tipados TypeScript
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## ⚙️ Installation
 
-To learn more about developing your project with Expo, look at the following resources:
+### 1️⃣ Clone the repository
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+git clone https://github.com/your-user/willster-frontend.git
+cd willster-frontend
+```
 
-## Join the community
+### 2️⃣ Install dependencies
 
-Join our community of developers creating universal apps.
+```bash
+npm install
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 3️⃣ Start the project
+
+```bash
+npx expo start
+```
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env` file in the root directory.
+
+Example:
+
+```env
+EXPO_PUBLIC_API_URL=https://your-api-url.com
+EXPO_PUBLIC_FIREBASE_API_KEY=your_key
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender
+EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+
+---
+
+## 📡 API Integration
+
+The frontend communicates with the backend API to manage:
+
+- Users
+- Notebooks
+- Notes
+- OCR processing
+- AI summaries
+- Interactive games
+
+Backend repository:
+
+```txt
+willster-api.vercel.app
+```
+
+---
+
+## 🎮 Core Functionalities
+
+### 📷 OCR Note Scanner
+Capture handwritten or printed notes and extract text automatically.
+
+### 🤖 AI Summary Generator
+Generate concise study summaries from notes using Gemini API.
+
+### 🎲 Gamified Learning
+Transform study material into interactive games to improve retention and engagement.
+
+---
+
+## 📱 Available Scripts
+
+```bash
+# Start Expo
+npm start
+
+# Android
+npm run android
+
+# iOS
+npm run ios
+
+# Web
+npm run web
+```
+
+---
+
+## 🧪 Future Improvements
+
+- 🔔 Smart study reminders
+- 📊 Study progress analytics
+- 👥 Collaborative notebooks
+- 🌙 Dark mode
+- 🧠 Adaptive learning system
+- 🏆 Achievement and ranking system
+
+---
+
+## 👨‍💻 Contributors
+
+- Samuel Acero García
+- Diego Norberto Diaz Algarin
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 📸 About Willster
+
+Willster was created to help students optimize their study process through automation, artificial intelligence, and gamification.
+
+The goal is to reduce the time students spend organizing notes while making studying more interactive and effective.
